@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import '../Tutorial.css';
-import { FaArrowRight, FaForward, FaTimes } from 'react-icons/fa';
+import { FaArrowRight, FaForward } from 'react-icons/fa';
 
 interface TutorialProps {
   onComplete: () => void;

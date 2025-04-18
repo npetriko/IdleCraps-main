@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FaCheck, FaLock, FaQuestion, FaTimes } from 'react-icons/fa';
+import { FaCheck, FaQuestion, FaTimes } from 'react-icons/fa';
 import '../App.css';
 
 export interface Quest {

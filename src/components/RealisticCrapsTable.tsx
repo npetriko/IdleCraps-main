@@ -31,12 +31,11 @@ const DICE_FACES = {
   6: '⚅'
 };
 
-const RealisticCrapsTable = ({ 
-  point, 
-  lastRoll, 
-  onBet, 
+const RealisticCrapsTable = ({
+  point,
+  onBet,
   onRemoveBet,
-  activeBets, 
+  activeBets,
   unlockedBets,
   comePoints = {},
   dontComePoints = {},

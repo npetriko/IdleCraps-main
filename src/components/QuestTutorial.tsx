@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import '../Tutorial.css';
-import { FaArrowRight, FaTimes } from 'react-icons/fa';
+import { FaTimes } from 'react-icons/fa';
 
 interface QuestTutorialProps {
   onComplete: () => void;

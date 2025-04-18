@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import './App.css'
 import RealisticCrapsTable from './components/RealisticCrapsTable'
 import { FaQuestion, FaShareAlt, FaTrophy, FaTerminal, FaCoins, FaFire, FaLock, FaTimes } from 'react-icons/fa'
@@ -41,7 +41,7 @@ const ACHIEVEMENTS = [
 ];
 
 // Available chip values
-const CHIP_VALUES = [1, 5, 10, 25, 50, 100];
+// const CHIP_VALUES = [1, 5, 10, 25, 50, 100];
 
 // Tick speed in ms
 const TickSpeed = 10000;
@@ -597,7 +597,7 @@ function App() {
     // Handle 'place-bet-expert' progress update separately as it depends on the Set size
     const expertQuestId = 'place-bet-expert';
     const currentExpertQuest = quests.find(q => q.id === expertQuestId);
-    const prevExpertQuest = prevQuests?.find(q => q.id === expertQuestId);
+    // const prevExpertQuest = prevQuests?.find(q => q.id === expertQuestId);
     if (currentExpertQuest && currentExpertQuest.unlocked) {
       const newProgress = placeBetExpertWins.size;
       const goal = currentExpertQuest.goal;
@@ -797,7 +797,7 @@ function App() {
         }
         // Come bet wins
         if (activeBets['come']) {
-          const profit = activeBets['come']; // Come bet pays 1:1
+          // Come bet pays 1:1
           handleComeBetWin(activeBets['come']);
           betsToRemove.push('come'); // Come bet is removed after win
         }
@@ -866,7 +866,7 @@ function App() {
             setBankroll(prev => prev + activeBets['dont-come']); // Return bet
             betsToKeep.push('dont-come'); // Bet stays
           } else {
-            const profit = activeBets['dont-come']; // 1:1 payout
+            // 1:1 payout
             handleDontComeBetWin(activeBets['dont-come']);
             betsToRemove.push('dont-come'); // Bet is removed after win
           }
@@ -925,7 +925,7 @@ function App() {
       if (activeBets['come']) {
         if (total === 7 || total === 11) {
           // Come bet wins immediately on 7 or 11
-          const profit = activeBets['come']; // Come bet pays 1:1
+          // Come bet pays 1:1
           handleComeBetWin(activeBets['come']);
           betsToRemove.push('come');
         } else if (total === 2 || total === 3 || total === 12) {
@@ -959,7 +959,7 @@ function App() {
           // betsToRemove already handles this via handleLoss
         } else if (total === 2 || total === 3) {
           // Don't Come bet wins on 2 or 3
-          const profit = activeBets['dont-come']; // Don't Come bet pays 1:1
+          // Don't Come bet pays 1:1
           handleDontComeBetWin(activeBets['dont-come']);
           betsToRemove.push('dont-come');
         } else if (total === 12) {
@@ -1122,7 +1122,7 @@ function App() {
         }
         // Don't Pass wins
         if (activeBets['dont-pass']) {
-          const profit = activeBets['dont-pass']; // 1:1 payout
+          // 1:1 payout
           handleDontPassBetWin(activeBets['dont-pass']);
           betsToRemove.push('dont-pass'); // Bet comes down
         }
@@ -1140,7 +1140,7 @@ function App() {
         
         // Don't Come bet wins on a 7 during point phase
         if (activeBets['dont-come']) {
-          const profit = activeBets['dont-come']; // 1:1 payout
+          // 1:1 payout
           handleDontComeBetWin(activeBets['dont-come']);
           betsToRemove.push('dont-come');
         }

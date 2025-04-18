@@ -23,7 +23,7 @@ const DICE_FACES = {
   6: '⚅'
 };
 
-const CrapsTable = ({ point, lastRoll, onBet, activeBets, unlockedBets }: CrapsTableProps) => {
+const CrapsTable = ({ point, onBet, activeBets, unlockedBets }: CrapsTableProps) => {
   const [activeSection, setActiveSection] = useState<'hardways' | 'props' | null>(null);
 
   const getPointClass = (num: number) => {
