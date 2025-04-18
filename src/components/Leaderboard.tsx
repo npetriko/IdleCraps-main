@@ -5,6 +5,8 @@ interface LeaderboardEntry {
   username: string;
   bankroll: number;
   total_winnings: number;
+  passive_income: number;
+  highest_win_streak: number;
   updated_at: string;
 }
 
@@ -60,8 +62,8 @@ const Leaderboard: React.FC = () => {
             <tr>
               <th>Rank</th>
               <th>Player</th>
-              <th>Bankroll</th>
-              <th>Total Winnings</th>
+              <th>Highest Win Streak</th>
+              <th>Passive Income</th>
             </tr>
           </thead>
           <tbody>
@@ -69,8 +71,8 @@ const Leaderboard: React.FC = () => {
               <tr key={index} className={index < 3 ? `top-${index + 1}` : ''}>
                 <td>{index + 1}</td>
                 <td><FaUser /> {entry.username}</td>
-                <td><FaCoins /> ${Number(entry.bankroll).toLocaleString()}</td>
-                <td>${Number(entry.total_winnings).toLocaleString()}</td>
+                <td>{Number(entry.highest_win_streak).toLocaleString()}</td>
+                <td><FaCoins /> ${Number(entry.passive_income).toLocaleString()}/sec</td>
               </tr>
             ))}
           </tbody>

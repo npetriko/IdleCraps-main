@@ -220,26 +220,66 @@ export const getGameState = async (userId) => {
 
 // Leaderboard queries
 export const updateLeaderboard = async (userId, bankroll, totalWinnings) => {
-  // Get username
-  const userResult = await query('SELECT username FROM users WHERE id = $1', [userId]);
-  const username = userResult.rows[0].username;
-  
-  // Update or insert leaderboard entry
-  await query(
-    `INSERT INTO leaderboard (user_id, username, bankroll, total_winnings, updated_at)
-     VALUES ($1, $2, $3, $4, CURRENT_TIMESTAMP)
-     ON CONFLICT (user_id) 
-     DO UPDATE SET 
-       bankroll = $3,
-       total_winnings = $4,
-       updated_at = CURRENT_TIMESTAMP`,
-    [userId, username, bankroll, totalWinnings]
-  );
+  try {
+    // Get username and game state data
+    const userResult = await query('SELECT username FROM users WHERE id = $1', [userId]);
+    const username = userResult.rows[0].username;
+    
+    // Get current streak and passive income from game_states
+    const gameStateResult = await query(
+      'SELECT streak, passive_income FROM game_states WHERE user_id = $1',
+      [userId]
+    );
+    
+    let streak = 0;
+    let passiveIncome = 1;
+    
+    if (gameStateResult.rows.length > 0) {
+      streak = parseInt(gameStateResult.rows[0].streak) || 0;
+      passiveIncome = parseFloat(gameStateResult.rows[0].passive_income) || 1;
+    }
+    
+    // Check if user already exists in leaderboard
+    const existingEntry = await query(
+      'SELECT id, highest_win_streak FROM leaderboard WHERE user_id = $1',
+      [userId]
+    );
+    
+    if (existingEntry.rows.length > 0) {
+      // Get current highest win streak
+      const currentHighestStreak = parseInt(existingEntry.rows[0].highest_win_streak) || 0;
+      
+      // Only update highest_win_streak if current streak is higher
+      const newHighestStreak = Math.max(currentHighestStreak, streak);
+      
+      // Update existing entry
+      await query(
+        `UPDATE leaderboard
+         SET bankroll = $2, total_winnings = $3, passive_income = $4,
+         highest_win_streak = $5, updated_at = CURRENT_TIMESTAMP
+         WHERE user_id = $1`,
+        [userId, bankroll, totalWinnings, passiveIncome, newHighestStreak]
+      );
+    } else {
+      // Insert new entry
+      await query(
+        `INSERT INTO leaderboard
+         (user_id, username, bankroll, total_winnings, passive_income, highest_win_streak, updated_at)
+         VALUES ($1, $2, $3, $4, $5, $6, CURRENT_TIMESTAMP)`,
+        [userId, username, bankroll, totalWinnings, passiveIncome, streak]
+      );
+    }
+  } catch (error) {
+    console.error('Error updating leaderboard:', error);
+    throw error;
+  }
 };
 
 export const getLeaderboard = async (limit = 100) => {
   const result = await query(
-    'SELECT username, bankroll, total_winnings, updated_at FROM leaderboard ORDER BY bankroll DESC LIMIT $1',
+    `SELECT username, bankroll, total_winnings, passive_income, highest_win_streak, updated_at
+     FROM leaderboard
+     ORDER BY bankroll DESC LIMIT $1`,
     [limit]
   );
   return result.rows;

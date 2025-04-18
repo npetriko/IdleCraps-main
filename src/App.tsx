@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import './App.css'
 import RealisticCrapsTable from './components/RealisticCrapsTable'
-import { FaQuestion, FaShareAlt, FaTrophy, FaTerminal, FaCoins, FaFire, FaLock, FaTimes } from 'react-icons/fa'
+import { FaQuestion, FaShareAlt, FaTrophy, FaTerminal, FaCoins, FaFire, FaLock, FaTimes, FaListOl } from 'react-icons/fa'
 import AccountSystem from './components/AccountSystem'
 import AdminPanel from './components/AdminPanel'
 import CheatTerminal from './components/CheatTerminal'
@@ -12,6 +12,7 @@ import QuestTutorial from './components/QuestTutorial';
 import Upgrades, { BET_UNLOCK_COSTS, CHIP_UNLOCK_COSTS } from './components/Upgrades'; // Import Upgrades and costs
 import ReactConfetti from 'react-confetti'; // Import confetti
 import useWindowSize from 'react-use/lib/useWindowSize'; // Import hook for window size
+import Leaderboard from './components/Leaderboard'; // Import Leaderboard component
 
 // Dice face characters
 const DICE_FACES: { [key: number]: string } = {
@@ -103,6 +104,7 @@ function App() {
   const [showUpgrades, setShowUpgrades] = useState(false);
   const [showQuests, setShowQuests] = useState(false);
   const [showCheatTerminal, setShowCheatTerminal] = useState(false);
+  const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [upgradeCount, setUpgradeCount] = useState(0);
   const [streak, setStreak] = useState(0);
   const [totalRolls, setTotalRolls] = useState(0);
@@ -1526,6 +1528,7 @@ function App() {
             <div className="viral-buttons">
               <button className="viral-button share-button" onClick={shareGame}><FaShareAlt /> Share</button>
               <button className="viral-button achievement-button" onClick={() => setShowAchievements(!showAchievements)}><FaTrophy /> {showAchievements ? "Hide" : "Achievements"}</button>
+              <button className="viral-button leaderboard-button" onClick={() => setShowLeaderboard(!showLeaderboard)}><FaListOl /> {showLeaderboard ? "Hide" : "Leaderboard"}</button>
               <button className="viral-button cheat-button" onClick={() => setShowCheatTerminal(true)}><FaTerminal /> Cheat Terminal</button>
             </div>
             <div className="panel-buttons">
@@ -1670,6 +1673,21 @@ function App() {
          </div>
       )}
       {showCheatTerminal && <CheatTerminal onClose={() => setShowCheatTerminal(false)} onSetDice={handleSetDice} onAddMoney={addCheatMoney} onUnlockAll={handleUnlockAll} onCompleteQuest={completeQuest} onUnlockQuest={unlockQuest} quests={quests} />}
+      
+      {/* Leaderboard Overlay */}
+      {showLeaderboard && (
+        <div className="leaderboard-overlay">
+          <div className="leaderboard-panel">
+            <div className="leaderboard-header">
+              <h3>Leaderboard</h3>
+              <button className="close-button" onClick={() => setShowLeaderboard(false)}><FaTimes /></button>
+            </div>
+            <div className="leaderboard-content">
+              <Leaderboard />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
