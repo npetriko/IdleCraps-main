@@ -1,0 +1,241 @@
+// Add this import at the top of the file, after the existing imports
+import * as api from './api';
+import Leaderboard from './components/Leaderboard';
+import './Leaderboard.css';
+
+// Add a new state variable for showing the leaderboard
+const [showLeaderboard, setShowLeaderboard] = useState(false);
+
+// Replace the handleSaveState function with this updated version
+const handleSaveState = useCallback(() => {
+  try {
+    // Only save if user is logged in
+    if (!isLoggedIn || !currentUser) {
+      addResult("Please log in to save your game state.");
+      return;
+    }
+
+    const gameState = {
+      bankroll,
+      passiveIncome,
+      totalRolls,
+      totalWins,
+      totalWinnings,
+      streak,
+      unlockedBets,
+      unlockedChips,
+      achievements: achievements.map(a => ({ id: a.id, unlocked: a.unlocked })),
+      // Convert Set to Array for JSON serialization
+      placeBetExpertWins: Array.from(placeBetExpertWins),
+      quests: quests.map(q => ({
+        id: q.id,
+        // Use the Set size directly here for consistency, loading logic will handle it
+        progress: q.id === 'place-bet-expert' ? placeBetExpertWins.size : q.progress,
+        completed: q.completed,
+        unlocked: q.unlocked
+      })),
+      upgradeCount,
+      hasWonFirstBet,
+      completedTutorial,
+      unlockedTutorials,
+      lastSaveTime: new Date().toISOString() // Add save timestamp
+    };
+
+    // Save to API
+    api.saveGameState(gameState)
+      .then(() => {
+        const now = new Date();
+        setLastSaveTime(now);
+        addResult(`Game state saved! (${now.toLocaleTimeString()})`);
+        console.log("Saving game state:", gameState);
+      })
+      .catch(error => {
+        console.error("Error saving game state:", error);
+        addResult("Error saving game state.");
+        
+        // Fallback to localStorage if API fails
+        localStorage.setItem('idleCrapsGameState', JSON.stringify(gameState));
+        addResult("Game state saved to local storage as fallback.");
+      });
+  } catch (error) {
+    console.error("Error preparing game state:", error);
+    addResult("Error saving game state.");
+  }
+}, [
+  bankroll, passiveIncome, totalRolls, totalWins, totalWinnings, streak,
+  unlockedBets, unlockedChips, achievements, placeBetExpertWins, quests,
+  upgradeCount, hasWonFirstBet, completedTutorial, unlockedTutorials,
+  isLoggedIn, currentUser, addResult
+]);
+
+// Replace the useEffect for loading game state with this updated version
+useEffect(() => {
+  const loadGameState = async () => {
+    try {
+      // Try to load from API first if user is logged in
+      if (isLoggedIn && currentUser) {
+        try {
+          const savedState = await api.loadGameState();
+          
+          if (savedState && Object.keys(savedState).length > 0) {
+            console.log("Loading game state from API:", savedState);
+            
+            // Basic values
+            if (savedState.bankroll !== undefined) setBankroll(savedState.bankroll);
+            if (savedState.passiveIncome !== undefined) setPassiveIncome(savedState.passiveIncome);
+            if (savedState.totalRolls !== undefined) setTotalRolls(savedState.totalRolls);
+            if (savedState.totalWins !== undefined) setTotalWins(savedState.totalWins);
+            if (savedState.totalWinnings !== undefined) setTotalWinnings(savedState.totalWinnings);
+            if (savedState.streak !== undefined) setStreak(savedState.streak);
+            if (savedState.upgradeCount !== undefined) setUpgradeCount(savedState.upgradeCount);
+            if (savedState.hasWonFirstBet !== undefined) setHasWonFirstBet(savedState.hasWonFirstBet);
+            if (savedState.completedTutorial !== undefined) setCompletedTutorial(savedState.completedTutorial);
+            if (savedState.lastSaveTime) setLastSaveTime(new Date(savedState.lastSaveTime));
+            
+            // Unlocked items
+            if (savedState.unlockedBets) setUnlockedBets(savedState.unlockedBets);
+            if (savedState.unlockedChips) setUnlockedChips(savedState.unlockedChips);
+            if (savedState.unlockedTutorials) setUnlockedTutorials(savedState.unlockedTutorials);
+            
+            // Achievements
+            if (savedState.achievements) {
+              setAchievements(prevAchievements =>
+                prevAchievements.map(defaultAch => {
+                  const savedAch = savedState.achievements.find((sa: { id: string }) => sa.id === defaultAch.id);
+                  return savedAch ? { ...defaultAch, unlocked: savedAch.unlocked } : defaultAch;
+                })
+              );
+            }
+            
+            // Place Bet Expert Wins (Convert Array back to Set)
+            if (savedState.placeBetExpertWins && Array.isArray(savedState.placeBetExpertWins)) {
+              setPlaceBetExpertWins(new Set(savedState.placeBetExpertWins));
+            }
+            
+            // Quests (carefully merge saved progress/status)
+            if (savedState.quests) {
+              setQuests(prevQuests =>
+                prevQuests.map(defaultQuest => {
+                  const savedQuest = savedState.quests.find((sq: { id: string }) => sq.id === defaultQuest.id);
+                  if (savedQuest) {
+                    // For place-bet-expert, progress is derived from the Set, so don't load progress directly
+                    const progressToSet = defaultQuest.id === 'place-bet-expert'
+                      ? (savedState.placeBetExpertWins ? new Set(savedState.placeBetExpertWins).size : 0) // Recalculate from loaded Set data
+                      : savedQuest.progress;
+                    
+                    return {
+                      ...defaultQuest,
+                      progress: progressToSet,
+                      completed: savedQuest.completed,
+                      unlocked: savedQuest.unlocked
+                    };
+                  }
+                  return defaultQuest;
+                })
+              );
+            }
+            
+            addResult("Game state loaded successfully from server.");
+            return;
+          }
+        } catch (error) {
+          console.error("Error loading game state from API:", error);
+          // Fall back to localStorage if API fails
+        }
+      }
+      
+      // Fall back to localStorage
+      const savedStateString = localStorage.getItem('idleCrapsGameState');
+      if (savedStateString) {
+        const savedState = JSON.parse(savedStateString);
+        console.log("Loading game state from localStorage:", savedState);
+        
+        // Same loading logic as above...
+        // Basic values
+        if (savedState.bankroll !== undefined) setBankroll(savedState.bankroll);
+        if (savedState.passiveIncome !== undefined) setPassiveIncome(savedState.passiveIncome);
+        if (savedState.totalRolls !== undefined) setTotalRolls(savedState.totalRolls);
+        if (savedState.totalWins !== undefined) setTotalWins(savedState.totalWins);
+        if (savedState.totalWinnings !== undefined) setTotalWinnings(savedState.totalWinnings);
+        if (savedState.streak !== undefined) setStreak(savedState.streak);
+        if (savedState.upgradeCount !== undefined) setUpgradeCount(savedState.upgradeCount);
+        if (savedState.hasWonFirstBet !== undefined) setHasWonFirstBet(savedState.hasWonFirstBet);
+        if (savedState.completedTutorial !== undefined) setCompletedTutorial(savedState.completedTutorial);
+        if (savedState.lastSaveTime) setLastSaveTime(new Date(savedState.lastSaveTime));
+        
+        // Unlocked items
+        if (savedState.unlockedBets) setUnlockedBets(savedState.unlockedBets);
+        if (savedState.unlockedChips) setUnlockedChips(savedState.unlockedChips);
+        if (savedState.unlockedTutorials) setUnlockedTutorials(savedState.unlockedTutorials);
+        
+        // Achievements
+        if (savedState.achievements) {
+          setAchievements(prevAchievements =>
+            prevAchievements.map(defaultAch => {
+              const savedAch = savedState.achievements.find((sa: { id: string }) => sa.id === defaultAch.id);
+              return savedAch ? { ...defaultAch, unlocked: savedAch.unlocked } : defaultAch;
+            })
+          );
+        }
+        
+        // Place Bet Expert Wins (Convert Array back to Set)
+        if (savedState.placeBetExpertWins && Array.isArray(savedState.placeBetExpertWins)) {
+          setPlaceBetExpertWins(new Set(savedState.placeBetExpertWins));
+        }
+        
+        // Quests (carefully merge saved progress/status)
+        if (savedState.quests) {
+          setQuests(prevQuests =>
+            prevQuests.map(defaultQuest => {
+              const savedQuest = savedState.quests.find((sq: { id: string }) => sq.id === defaultQuest.id);
+              if (savedQuest) {
+                // For place-bet-expert, progress is derived from the Set, so don't load progress directly
+                const progressToSet = defaultQuest.id === 'place-bet-expert'
+                  ? (savedState.placeBetExpertWins ? new Set(savedState.placeBetExpertWins).size : 0) // Recalculate from loaded Set data
+                  : savedQuest.progress;
+                
+                return {
+                  ...defaultQuest,
+                  progress: progressToSet,
+                  completed: savedQuest.completed,
+                  unlocked: savedQuest.unlocked
+                };
+              }
+              return defaultQuest;
+            })
+          );
+        }
+        
+        addResult("Game state loaded successfully from local storage.");
+      } else {
+        addResult("No saved game state found. Starting fresh!");
+      }
+    } catch (error) {
+      console.error("Error loading game state:", error);
+      addResult("Error loading game state. Starting fresh.");
+    }
+  };
+  
+  loadGameState();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+}, [isLoggedIn, currentUser]); // Reload when login state changes
+
+// Add this to the JSX part of the component, where the other buttons are
+<button 
+  className="ui-button leaderboard-button" 
+  onClick={() => setShowLeaderboard(!showLeaderboard)}
+>
+  <FaTrophy /> Leaderboard
+</button>
+
+// Add this to the JSX part, after the other modals
+{showLeaderboard && (
+  <div className="modal-overlay">
+    <div className="modal-content leaderboard-modal">
+      <button className="close-button" onClick={() => setShowLeaderboard(false)}>
+        <FaTimes />
+      </button>
+      <Leaderboard />
+    </div>
+  </div>
+)}

@@ -1,0 +1,89 @@
+.leaderboard {
+  background-color: rgba(0, 0, 0, 0.8);
+  border-radius: 8px;
+  padding: 20px;
+  max-width: 800px;
+  margin: 0 auto;
+  color: white;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+}
+
+.leaderboard h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: gold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.leaderboard table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+}
+
+.leaderboard th, 
+.leaderboard td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.leaderboard th {
+  background-color: rgba(0, 0, 0, 0.5);
+  color: gold;
+  font-weight: bold;
+}
+
+.leaderboard tr:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.leaderboard .top-1 {
+  background-color: rgba(255, 215, 0, 0.2); /* Gold */
+}
+
+.leaderboard .top-2 {
+  background-color: rgba(192, 192, 192, 0.2); /* Silver */
+}
+
+.leaderboard .top-3 {
+  background-color: rgba(205, 127, 50, 0.2); /* Bronze */
+}
+
+.leaderboard .loading,
+.leaderboard .error-message,
+.leaderboard .empty-message {
+  text-align: center;
+  padding: 20px;
+  font-style: italic;
+}
+
+.leaderboard .error-message {
+  color: #ff6b6b;
+}
+
+.leaderboard .spinner {
+  animation: spin 1s linear infinite;
+  margin-right: 8px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+  .leaderboard {
+    padding: 10px;
+  }
+  
+  .leaderboard th, 
+  .leaderboard td {
+    padding: 8px;
+    font-size: 0.9rem;
+  }
+}

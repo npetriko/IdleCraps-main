@@ -4,33 +4,27 @@ import { FaUser, FaLock, FaSave, FaSignOutAlt } from 'react-icons/fa';
 
 export interface User {
   username: string;
-  passwordHash: string;
-  gameState: any;
-  createdAt: string;
-  lastLogin: string;
   isAdmin?: boolean;
 }
 
 interface AccountSystemProps {
   onLogin: (username: string, isAdmin: boolean) => void;
   onLogout: () => void;
-  onSaveState: () => void; // Changed: No longer needs username/gameState args
-  gameState: any; // Keep gameState prop if needed elsewhere, or remove if truly unused
+  onSaveState: () => void;
   isLoggedIn: boolean;
   currentUser: string | null;
   isAdmin: boolean;
-  lastSaveTime: Date | null; // Add the new prop
+  lastSaveTime: Date | null;
 }
 
 const AccountSystem: React.FC<AccountSystemProps> = ({
   onLogin,
   onLogout,
-  onSaveState, // Keep the function prop itself
-  // gameState, // Remove if unused
+  onSaveState,
   isLoggedIn,
   currentUser,
   isAdmin,
-  lastSaveTime // Destructure the new prop
+  lastSaveTime
 }) => {
   const [showLogin, setShowLogin] = useState(false);
   const [isRegistering, setIsRegistering] = useState(false);
@@ -38,143 +32,151 @@ const AccountSystem: React.FC<AccountSystemProps> = ({
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
-  // Remove internal lastSaved state: const [lastSaved, setLastSaved] = useState<Date | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
-  // Simple hash function for passwords
-  const hashPassword = (password: string): string => {
-    // This is a very basic hash for demonstration
-    // In a real app, use a proper crypto library
-    let hash = 0;
-    for (let i = 0; i < password.length; i++) {
-      const char = password.charCodeAt(i);
-      hash = ((hash << 5) - hash) + char;
-      hash = hash & hash; // Convert to 32bit integer
-    }
-    return hash.toString(16);
-  };
-
-  // Create admin account if it doesn't exist
+  // Check if user is already logged in via session
   useEffect(() => {
-    const users = getUsers();
-    
-    // Remove the old admin account if it exists
-    if (users['admin']) {
-      delete users['admin'];
-    }
-    
-    // Check if azurim admin account exists
-    if (!users['azurim']) {
-      // Create admin account with username azurim and password '@W7PreRL'
-      const adminUser: User = {
-        username: 'azurim',
-        passwordHash: hashPassword('@W7PreRL'),
-        gameState: null,
-        createdAt: new Date().toISOString(),
-        lastLogin: new Date().toISOString(),
-        isAdmin: true
-      };
-      
-      users['azurim'] = adminUser;
-      saveUsers(users);
-      console.log('Admin account created with username: azurim and password: @W7PreRL');
-    }
-  }, []);
+    const checkSession = async () => {
+      try {
+        const response = await fetch('/api/user');
+        if (response.ok) {
+          const data = await response.json();
+          onLogin(data.username, data.isAdmin);
+        }
+      } catch (error) {
+        console.error('Session check error:', error);
+      }
+    };
 
-  // Get users from localStorage
-  const getUsers = (): { [key: string]: User } => {
-    const users = localStorage.getItem('idleCrapsUsers');
-    return users ? JSON.parse(users) : {};
-  };
-
-  // Save users to localStorage
-  const saveUsers = (users: { [key: string]: User }) => {
-    localStorage.setItem('idleCrapsUsers', JSON.stringify(users));
-  };
+    if (!isLoggedIn) {
+      checkSession();
+    }
+  }, [isLoggedIn, onLogin]);
 
   // Register a new user
-  const registerUser = () => {
+  const registerUser = async () => {
     if (!username || !password) {
       setErrorMessage('Username and password are required');
       return;
     }
 
-    const users = getUsers();
-    
-    if (users[username]) {
-      setErrorMessage('Username already exists');
-      return;
+    setIsLoading(true);
+    try {
+      const response = await fetch('/api/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username, password }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Registration failed');
+      }
+
+      setSuccessMessage('Account created! You can now login.');
+      setErrorMessage('');
+      setIsRegistering(false);
+      setPassword('');
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : 'Registration failed');
+    } finally {
+      setIsLoading(false);
     }
-
-    const newUser: User = {
-      username,
-      passwordHash: hashPassword(password),
-      gameState: null,
-      createdAt: new Date().toISOString(),
-      lastLogin: new Date().toISOString(),
-      isAdmin: false // Regular users are not admins
-    };
-
-    users[username] = newUser;
-    saveUsers(users);
-    
-    setSuccessMessage('Account created! You can now login.');
-    setErrorMessage('');
-    setIsRegistering(false);
-    
-    // Clear form
-    setPassword('');
   };
 
   // Login user
-  const loginUser = () => {
+  const loginUser = async () => {
     if (!username || !password) {
       setErrorMessage('Username and password are required');
       return;
     }
 
-    const users = getUsers();
-    const user = users[username];
-    
-    if (!user) {
-      setErrorMessage('Username not found');
-      return;
-    }
+    setIsLoading(true);
+    try {
+      const response = await fetch('/api/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username, password }),
+      });
 
-    if (user.passwordHash !== hashPassword(password)) {
-      setErrorMessage('Incorrect password');
-      return;
-    }
+      const data = await response.json();
 
-    // Update last login
-    user.lastLogin = new Date().toISOString();
-    users[username] = user;
-    saveUsers(users);
-    
-    // Call the onLogin callback to update parent component state
-    onLogin(username, !!user.isAdmin);
-    
-    // Close the login modal
-    setShowLogin(false);
-    setErrorMessage('');
-    setPassword('');
-    
-    setSuccessMessage(`Welcome back, ${username}!`);
-    setTimeout(() => setSuccessMessage(''), 3000);
+      if (!response.ok) {
+        throw new Error(data.error || 'Login failed');
+      }
+
+      // Call the onLogin callback to update parent component state
+      onLogin(data.user.username, data.user.isAdmin);
+
+      // Close the login modal
+      setShowLogin(false);
+      setErrorMessage('');
+      setPassword('');
+
+      setSuccessMessage(`Welcome back, ${data.user.username}!`);
+      setTimeout(() => setSuccessMessage(''), 3000);
+
+      // Check if there's localStorage data to migrate
+      migrateLocalStorageData(data.user.username);
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : 'Login failed');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  // Save current game state (now just calls the passed function)
+  // Migrate localStorage data if available
+  const migrateLocalStorageData = (username: string) => {
+    try {
+      // Check for localStorage game state
+      const savedGameState = localStorage.getItem('idleCrapsGameState');
+      if (savedGameState) {
+        // Get the old user data
+        const users = localStorage.getItem('idleCrapsUsers');
+        if (users) {
+          const parsedUsers = JSON.parse(users);
+          const user = parsedUsers[username];
+          
+          if (user) {
+            // Migrate data to server
+            fetch('/api/migrate', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ gameState: JSON.parse(savedGameState) }),
+            })
+            .then(response => {
+              if (response.ok) {
+                setSuccessMessage('Game data migrated successfully!');
+                setTimeout(() => setSuccessMessage(''), 3000);
+              }
+            })
+            .catch(error => {
+              console.error('Migration error:', error);
+            });
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error during migration:', error);
+    }
+  };
+
+  // Save current game state
   const triggerSave = () => {
-    if (!currentUser) return; // Still need user context potentially
+    if (!currentUser) return;
 
     onSaveState(); // Call the save function passed from App
 
-    // Success message might be handled by App's addResult now, or keep it here
-    setSuccessMessage('Save triggered!'); // Or use message from App?
+    setSuccessMessage('Save triggered!');
     setTimeout(() => setSuccessMessage(''), 3000);
   };
-
-  // Remove the auto-save logic from here, it's handled in App.tsx
-  // useEffect(() => { ... }, []);
 
   // Handle form submission
   const handleSubmit = (e: React.FormEvent) => {
@@ -193,6 +195,18 @@ const AccountSystem: React.FC<AccountSystemProps> = ({
     setSuccessMessage('');
   };
 
+  // Handle logout
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/logout', {
+        method: 'POST',
+      });
+      onLogout();
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  };
+
   return (
     <div className="account-system">
       {!isLoggedIn ? (
@@ -204,14 +218,12 @@ const AccountSystem: React.FC<AccountSystemProps> = ({
           <span className="user-greeting">
             <FaUser /> {currentUser} {isAdmin && "(Admin)"}
           </span>
-          {/* Use triggerSave instead of saveGameState */}
           <button className="save-button" onClick={triggerSave}>
             <FaSave /> Save
           </button>
-          <button className="logout-button" onClick={onLogout}>
+          <button className="logout-button" onClick={handleLogout}>
             <FaSignOutAlt /> Logout
           </button>
-          {/* Use the lastSaveTime prop */}
           {lastSaveTime && (
             <div className="last-saved">
               Last saved: {lastSaveTime.toLocaleTimeString()}
@@ -236,6 +248,7 @@ const AccountSystem: React.FC<AccountSystemProps> = ({
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   placeholder="Enter username"
+                  disabled={isLoading}
                 />
               </div>
               
@@ -249,6 +262,7 @@ const AccountSystem: React.FC<AccountSystemProps> = ({
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Enter password"
+                  disabled={isLoading}
                 />
               </div>
               
@@ -256,17 +270,22 @@ const AccountSystem: React.FC<AccountSystemProps> = ({
               {successMessage && <div className="success-message">{successMessage}</div>}
               
               <div className="form-actions">
-                <button type="submit" className="submit-button">
-                  {isRegistering ? 'Register' : 'Login'}
+                <button type="submit" className="submit-button" disabled={isLoading}>
+                  {isLoading ? 'Processing...' : (isRegistering ? 'Register' : 'Login')}
                 </button>
-                <button type="button" className="cancel-button" onClick={() => setShowLogin(false)}>
+                <button 
+                  type="button" 
+                  className="cancel-button" 
+                  onClick={() => setShowLogin(false)}
+                  disabled={isLoading}
+                >
                   Cancel
                 </button>
               </div>
             </form>
             
             <div className="form-toggle">
-              <button onClick={toggleForm}>
+              <button onClick={toggleForm} disabled={isLoading}>
                 {isRegistering ? 'Already have an account? Login' : 'Need an account? Register'}
               </button>
             </div>
