@@ -1434,22 +1434,7 @@ function App() {
     setTimeout(() => {
       handleSaveState();
     }, 500);
-    addResult("🧪 CHEAT: All progress has been wiped! Game reset to initial state.");
-    
-    // Save the wiped state
-    setTimeout(() => {
-      handleSaveState();
-    }, 500);
-       return;
-     }
-     setQuests(prevQuests => prevQuests.map(quest => {
-       if (quest.id === questId && !quest.unlocked) {
-         addResult(`🧪 CHEAT: Unlocked quest: ${quest.name}`);
-         return { ...quest, unlocked: true };
-       }
-       return quest;
-     }));
-   };
+  };
 
   // Tutorial handlers (Keep as is)
   const handleTutorialComplete = () => { setShowTutorial(false); setCompletedTutorial(true); addResult("🏆 Tutorial completed!"); };
