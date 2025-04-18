@@ -141,7 +141,7 @@ const RealisticCrapsTable = ({
         >
           <div className="dont-come-text">Don't Come Bar</div>
           <div className="dice-icon">{DICE_FACES[2]}{DICE_FACES[1]}</div>
-          {getBetAmount('dont-come') > 0 && <div className="bet-amount">{formatNumber(getBetAmount('dont-come'), false)}</div>}
+          {getBetAmount('dont-come') > 0 && <div className="bet-amount">{formatNumber(getBetAmount('dont-come'))}</div>}
           {renderLockIcon('dont-come')}
         </div>
         
@@ -253,7 +253,7 @@ const RealisticCrapsTable = ({
           onMouseLeave={() => setHoveredArea(null)}
         >
           <div className="come-text">COME</div>
-          {getBetAmount('come') > 0 && <div className="bet-amount">{formatNumber(getBetAmount('come'), false)}</div>}
+          {getBetAmount('come') > 0 && <div className="bet-amount">{formatNumber(getBetAmount('come'))}</div>}
           {renderLockIcon('come')}
         </div>
         
@@ -275,7 +275,7 @@ const RealisticCrapsTable = ({
             <div className="field-number">11</div>
             <div className="field-number circled-number">12</div>
           </div>
-          {getBetAmount('field') > 0 && <div className="bet-amount">{formatNumber(getBetAmount('field'), false)}</div>}
+          {getBetAmount('field') > 0 && <div className="bet-amount">{formatNumber(getBetAmount('field'))}</div>}
           {renderLockIcon('field')}
         </div>
         
@@ -289,7 +289,7 @@ const RealisticCrapsTable = ({
         >
           <div className="dont-pass-text">Don't Pass Bar</div>
           <div className="dice-icon">{DICE_FACES[2]}{DICE_FACES[1]}</div>
-          {getBetAmount('dont-pass') > 0 && <div className="bet-amount">{formatNumber(getBetAmount('dont-pass'), false)}</div>}
+          {getBetAmount('dont-pass') > 0 && <div className="bet-amount">{formatNumber(getBetAmount('dont-pass'))}</div>}
           {renderLockIcon('dont-pass')}
         </div>
         
@@ -302,7 +302,7 @@ const RealisticCrapsTable = ({
           onMouseLeave={() => setHoveredArea(null)}
         >
           <div className="pass-line-text">PASS LINE</div>
-          {getBetAmount('pass-line') > 0 && <div className="bet-amount">{formatNumber(getBetAmount('pass-line'), false)}</div>}
+          {getBetAmount('pass-line') > 0 && <div className="bet-amount">{formatNumber(getBetAmount('pass-line'))}</div>}
           {renderLockIcon('pass-line')}
           
           {/* Only show Pass Line Odds bet option when there's a point, active pass line bet, and it's unlocked */}
