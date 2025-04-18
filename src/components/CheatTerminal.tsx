@@ -1,4 +1,4 @@
-import { FaTimes, FaCoins, FaDice, FaPlay, FaTrophy, FaUnlock } from 'react-icons/fa';
+import { FaTimes, FaCoins, FaDice, FaPlay, FaTrophy, FaUnlock, FaTrash } from 'react-icons/fa';
 
 interface CheatTerminalProps {
   onClose: () => void;
@@ -8,16 +8,18 @@ interface CheatTerminalProps {
   onCompleteQuest?: (questId: string) => void;
   onUnlockQuest?: (questId: string) => void;
   quests?: Array<{id: string, name: string, completed: boolean, unlocked: boolean}>;
+  onWipeProgress?: () => void;
 }
 
-const CheatTerminal = ({ 
-  onClose, 
-  onSetDice, 
-  onAddMoney, 
-  onUnlockAll, 
-  onCompleteQuest, 
+const CheatTerminal = ({
+  onClose,
+  onSetDice,
+  onAddMoney,
+  onUnlockAll,
+  onCompleteQuest,
   onUnlockQuest,
-  quests = [] 
+  onWipeProgress,
+  quests = []
 }: CheatTerminalProps) => {
   // Generate all possible dice combinations (1-6 for each die)
   const diceCombinations = [];
@@ -100,6 +102,15 @@ const CheatTerminal = ({
               <button onClick={onUnlockAll} className="unlock-all-button">
                 <FaPlay /> Unlock All Bets & Chips
               </button>
+              {onWipeProgress && (
+                <button onClick={() => {
+                  if (window.confirm('Are you sure you want to wipe all progress? This cannot be undone!')) {
+                    onWipeProgress();
+                  }
+                }} className="wipe-progress-button" style={{ backgroundColor: '#d9534f' }}>
+                  <FaTrash /> Wipe All Progress
+                </button>
+              )}
             </div>
           </section>
 

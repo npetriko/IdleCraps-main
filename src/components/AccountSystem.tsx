@@ -209,20 +209,24 @@ const AccountSystem: React.FC<AccountSystemProps> = ({
         </button>
       ) : (
         <div className="account-controls">
-          <span className="user-greeting">
-            <FaUser /> {currentUser} {isAdmin && "(Admin)"}
-          </span>
-          <button className="save-button" onClick={triggerSave}>
-            <FaSave /> Save
-          </button>
-          <button className="logout-button" onClick={handleLogout}>
-            <FaSignOutAlt /> Logout
-          </button>
-          {lastSaveTime && (
-            <div className="last-saved">
-              Last saved: {lastSaveTime.toLocaleTimeString()}
-            </div>
-          )}
+          <div className="user-info">
+            <span className="user-greeting">
+              <FaUser /> {currentUser} {isAdmin && "(Admin)"}
+            </span>
+            {lastSaveTime && (
+              <div className="last-saved">
+                Last saved: {lastSaveTime.toLocaleTimeString()}
+              </div>
+            )}
+          </div>
+          <div className="account-buttons">
+            <button className="save-button" onClick={triggerSave}>
+              <FaSave /> Save
+            </button>
+            <button className="logout-button" onClick={handleLogout}>
+              <FaSignOutAlt /> Logout
+            </button>
+          </div>
         </div>
       )}
 

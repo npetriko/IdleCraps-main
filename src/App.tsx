@@ -1379,6 +1379,68 @@ function App() {
        setQuests(prevQuests => prevQuests.map(quest => !quest.unlocked ? { ...quest, unlocked: true } : quest));
        addResult(`🧪 CHEAT: Unlocked all quests!`);
        return;
+      }
+      setQuests(prevQuests => prevQuests.map(quest => {
+        if (quest.id === questId && !quest.unlocked) {
+          addResult(`🧪 CHEAT: Unlocked quest: ${quest.name}`);
+          return { ...quest, unlocked: true };
+        }
+        return quest;
+      }));
+   };
+
+  // Wipe all progress function
+  const handleWipeProgress = () => {
+    // Reset all game state to initial values
+    setBankroll(100);
+    setDice([1, 1]);
+    setPoint(null);
+    setResults([]);
+    setPassiveIncome(1);
+    setTotalWinnings(0);
+    setActiveBets({});
+    setUnlockedBets({ 'pass-line': true });
+    setSelectedChip(5);
+    setComePoints({});
+    setDontComePoints({});
+    setPlaceBetExpertWins(new Set());
+    setUnlockedChips([1, 5, 10]);
+    setLastSaveTime(null);
+    setShowTutorial(true);
+    setCompletedTutorial(false);
+    setCurrentTutorialStep(0);
+    setUnlockedTutorials(['basics']);
+    setShowQuestTutorial(false);
+    setCurrentQuestTutorial(null);
+    setStreak(0);
+    setHighestStreak(0);
+    setTotalRolls(0);
+    setTotalWins(0);
+    setHasWonFirstBet(false);
+    setAchievements(ACHIEVEMENTS);
+    setUpgradeCount(0);
+    
+    // Reset quests to initial state
+    setQuests(prevQuests => prevQuests.map(quest => ({
+      ...quest,
+      progress: 0,
+      completed: false,
+      unlocked: quest.id === 'pass-line-master' ? false : false
+    })));
+    
+    addResult("🧪 CHEAT: All progress has been wiped! Game reset to initial state.");
+    
+    // Save the wiped state
+    setTimeout(() => {
+      handleSaveState();
+    }, 500);
+    addResult("🧪 CHEAT: All progress has been wiped! Game reset to initial state.");
+    
+    // Save the wiped state
+    setTimeout(() => {
+      handleSaveState();
+    }, 500);
+       return;
      }
      setQuests(prevQuests => prevQuests.map(quest => {
        if (quest.id === questId && !quest.unlocked) {
@@ -1524,7 +1586,10 @@ function App() {
               </div>
               {/* Progress bar removed */}
             </div>
-            <button className="stats-button" onClick={() => setShowStatsOverlay(true)}><FaCoins /> View Stats</button>
+            <div className="stats-buttons">
+              <button className="stats-button" onClick={() => setShowStatsOverlay(true)}><FaCoins /> View Stats</button>
+              <button className="stats-button leaderboard-button" onClick={() => setShowLeaderboard(!showLeaderboard)}><FaListOl /> {showLeaderboard ? "Hide" : "Leaderboard"}</button>
+            </div>
           </div>
 
           {/* Info Section (Dice, Point, Roll Button, etc.) */}
@@ -1541,8 +1606,7 @@ function App() {
             <div className="viral-buttons">
               <button className="viral-button share-button" onClick={shareGame}><FaShareAlt /> Share</button>
               <button className="viral-button achievement-button" onClick={() => setShowAchievements(!showAchievements)}><FaTrophy /> {showAchievements ? "Hide" : "Achievements"}</button>
-              <button className="viral-button leaderboard-button" onClick={() => setShowLeaderboard(!showLeaderboard)}><FaListOl /> {showLeaderboard ? "Hide" : "Leaderboard"}</button>
-              <button className="viral-button cheat-button" onClick={() => setShowCheatTerminal(true)}><FaTerminal /> Cheat Terminal</button>
+              {isAdmin && <button className="viral-button cheat-button" onClick={() => setShowCheatTerminal(true)}><FaTerminal /> Cheat Terminal</button>}
             </div>
             <div className="panel-buttons">
                {/* Upgrades Button: Locked until Field Bet Master is complete */}
@@ -1687,7 +1751,7 @@ function App() {
            </div>
          </div>
       )}
-      {showCheatTerminal && <CheatTerminal onClose={() => setShowCheatTerminal(false)} onSetDice={handleSetDice} onAddMoney={addCheatMoney} onUnlockAll={handleUnlockAll} onCompleteQuest={completeQuest} onUnlockQuest={unlockQuest} quests={quests} />}
+      {showCheatTerminal && <CheatTerminal onClose={() => setShowCheatTerminal(false)} onSetDice={handleSetDice} onAddMoney={addCheatMoney} onUnlockAll={handleUnlockAll} onCompleteQuest={completeQuest} onUnlockQuest={unlockQuest} onWipeProgress={handleWipeProgress} quests={quests} />}
       
       {/* Leaderboard Overlay */}
       {showLeaderboard && (

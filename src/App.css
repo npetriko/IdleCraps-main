@@ -2365,9 +2365,9 @@ button,
   flex-wrap: wrap;
   justify-content: space-between; /* Keep space-between for larger screens */
   gap: 15px;
-  margin: 15px 0 0 0; /* Add margin-top only */
+  margin: 15px auto 0 auto; /* Add margin-top only and center horizontally */
   width: 100%;
-  /* max-width: 100%; Removed redundant max-width */
+  max-width: 1000px; /* Match the max-width of the craps table */
   justify-content: center; /* Center items when they wrap */
 }
 
