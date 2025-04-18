@@ -6,19 +6,31 @@
 // Save game state to the server
 export const saveGameState = async (gameState: any) => {
   try {
+    console.log('API: Saving game state to server', gameState);
+    
+    // Ensure we have a valid game state object
+    if (!gameState || typeof gameState !== 'object') {
+      throw new Error('Invalid game state object');
+    }
+    
     const response = await fetch('/api/gamestate', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(gameState),
+      credentials: 'include' // Important: include credentials for session cookies
     });
     
     if (!response.ok) {
-      throw new Error('Failed to save game state');
+      const errorData = await response.json().catch(() => ({}));
+      console.error('Server returned error:', response.status, errorData);
+      throw new Error(`Failed to save game state: ${response.status} ${errorData.error || response.statusText}`);
     }
     
-    return await response.json();
+    const result = await response.json();
+    console.log('API: Save successful', result);
+    return result;
   } catch (error) {
     console.error('Error saving game state:', error);
     throw error;
@@ -28,13 +40,33 @@ export const saveGameState = async (gameState: any) => {
 // Load game state from the server
 export const loadGameState = async () => {
   try {
-    const response = await fetch('/api/gamestate');
+    console.log('API: Loading game state from server');
+    
+    const response = await fetch('/api/gamestate', {
+      credentials: 'include' // Important: include credentials for session cookies
+    });
     
     if (!response.ok) {
-      throw new Error('Failed to load game state');
+      if (response.status === 404) {
+        console.log('No saved game state found on server');
+        return null;
+      }
+      
+      const errorData = await response.json().catch(() => ({}));
+      console.error('Server returned error:', response.status, errorData);
+      throw new Error(`Failed to load game state: ${response.status} ${errorData.error || response.statusText}`);
     }
     
-    return await response.json();
+    const data = await response.json();
+    
+    // Check if we got a message about no saved state
+    if (data.message === 'No saved game state found') {
+      console.log('API: No saved game state found');
+      return null;
+    }
+    
+    console.log('API: Load successful', data);
+    return data;
   } catch (error) {
     console.error('Error loading game state:', error);
     throw error;

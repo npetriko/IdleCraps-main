@@ -631,6 +631,8 @@ function App() {
   // Handle save state
   const handleSaveState = useCallback(async () => {
     try {
+      console.log("Save triggered, isLoggedIn:", isLoggedIn);
+      
       const gameState = {
         bankroll,
         passiveIncome,
@@ -662,11 +664,12 @@ function App() {
         try {
           // Import saveGameState from api.ts
           const { saveGameState } = await import('./api');
-          await saveGameState(gameState);
+          const result = await saveGameState(gameState);
           const now = new Date();
           setLastSaveTime(now);
           addResult(`Game state saved to database! (${now.toLocaleTimeString()})`);
           console.log("Saving game state to database:", gameState);
+          console.log("Save result:", result);
         } catch (apiError) {
           console.error("Error saving game state to database:", apiError);
           addResult("Error saving game state to database. Falling back to localStorage.");
@@ -688,7 +691,7 @@ function App() {
   }, [
     bankroll, passiveIncome, totalRolls, totalWins, totalWinnings, streak,
     unlockedBets, unlockedChips, achievements, placeBetExpertWins, quests,
-    upgradeCount, hasWonFirstBet, completedTutorial, unlockedTutorials, isLoggedIn
+    upgradeCount, hasWonFirstBet, completedTutorial, unlockedTutorials, isLoggedIn, addResult
   ]); // Dependencies for useCallback
 
   // Auto-save periodically

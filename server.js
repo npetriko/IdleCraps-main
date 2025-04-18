@@ -151,15 +151,23 @@ app.post('/api/gamestate', isAuthenticated, async (req, res) => {
     const userId = req.session.userId;
     const gameState = req.body;
     
+    console.log(`Saving game state for user ${userId}`);
+    
+    // Validate the game state has required fields
+    if (!gameState) {
+      return res.status(400).json({ error: 'No game state provided' });
+    }
+    
     await db.saveGameState(userId, gameState);
     
-    res.json({ 
+    res.json({
       message: 'Game state saved successfully',
-      timestamp: new Date()
+      timestamp: new Date(),
+      userId: userId
     });
   } catch (error) {
     console.error('Save game state error:', error);
-    res.status(500).json({ error: 'Server error during save' });
+    res.status(500).json({ error: 'Server error during save', details: error.message });
   }
 });
 
