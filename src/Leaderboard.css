@@ -29,7 +29,7 @@
 
 .leaderboard th,
 .leaderboard td {
-  padding: 12px;
+  padding: 12px 20px;
   text-align: center;
   border-bottom: 1px solid rgba(255, 255, 255, 0.2);
 }
@@ -89,4 +89,63 @@
     padding: 8px;
     font-size: 0.9rem;
   }
+}
+
+/* Sortable columns */
+.leaderboard th.sortable {
+  cursor: pointer;
+  position: relative;
+}
+
+.leaderboard th.sortable:hover {
+  background-color: rgba(0, 0, 0, 0.7);
+}
+
+.leaderboard th.sortable::after {
+  content: '';
+  display: inline-block;
+  margin-left: 8px;
+  width: 0;
+  height: 0;
+}
+
+.leaderboard th.sorted-asc::after {
+  content: '▲';
+  font-size: 0.8em;
+  vertical-align: middle;
+}
+
+.leaderboard th.sorted-desc::after {
+  content: '▼';
+  font-size: 0.8em;
+  vertical-align: middle;
+}
+
+/* Static rank column */
+.leaderboard .rank-column {
+  position: sticky;
+  left: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.3);
+}
+
+.leaderboard tbody tr td:first-child {
+  position: sticky;
+  left: 0;
+  background-color: inherit;
+  z-index: 1;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.3);
+}
+
+.leaderboard .top-1 td:first-child {
+  background-color: rgba(255, 215, 0, 0.2); /* Gold */
+}
+
+.leaderboard .top-2 td:first-child {
+  background-color: rgba(192, 192, 192, 0.2); /* Silver */
+}
+
+.leaderboard .top-3 td:first-child {
+  background-color: rgba(205, 127, 50, 0.2); /* Bronze */
 }

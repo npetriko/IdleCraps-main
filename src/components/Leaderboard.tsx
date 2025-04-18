@@ -11,10 +11,14 @@ interface LeaderboardEntry {
   updated_at: string;
 }
 
+type SortField = 'bankroll' | 'highest_win_streak' | 'passive_income';
+
 const Leaderboard: React.FC = () => {
   const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [sortField, setSortField] = useState<SortField>('bankroll');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
   
   useEffect(() => {
     const fetchLeaderboard = async () => {
@@ -45,6 +49,30 @@ const Leaderboard: React.FC = () => {
     return () => clearInterval(interval);
   }, []);
   
+  // Function to handle sorting
+  const handleSort = (field: SortField) => {
+    if (field === sortField) {
+      // If clicking the same field, toggle direction
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      // If clicking a new field, set it as sort field and default to descending
+      setSortField(field);
+      setSortDirection('desc');
+    }
+  };
+  
+  // Get sorted entries
+  const sortedEntries = [...entries].sort((a, b) => {
+    const fieldA = a[sortField];
+    const fieldB = b[sortField];
+    
+    if (sortDirection === 'asc') {
+      return fieldA > fieldB ? 1 : -1;
+    } else {
+      return fieldA < fieldB ? 1 : -1;
+    }
+  });
+  
   return (
     <div className="leaderboard">
       <h2><FaTrophy /> Leaderboard</h2>
@@ -61,14 +89,24 @@ const Leaderboard: React.FC = () => {
         <table>
           <thead>
             <tr>
-              <th>Rank</th>
+              <th className="rank-column">Rank</th>
               <th>Player</th>
-              <th>Highest Win Streak</th>
-              <th>Passive Income</th>
+              <th
+                onClick={() => handleSort('highest_win_streak')}
+                className={`sortable ${sortField === 'highest_win_streak' ? 'sorted-' + sortDirection : ''}`}
+              >
+                Highest Win Streak
+              </th>
+              <th
+                onClick={() => handleSort('passive_income')}
+                className={`sortable ${sortField === 'passive_income' ? 'sorted-' + sortDirection : ''}`}
+              >
+                Passive Income
+              </th>
             </tr>
           </thead>
           <tbody>
-            {entries.map((entry, index) => (
+            {sortedEntries.map((entry, index) => (
               <tr key={index} className={index < 3 ? `top-${index + 1}` : ''}>
                 <td>{index + 1}</td>
                 <td><FaUser /> {entry.username}</td>

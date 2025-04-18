@@ -68,6 +68,7 @@ export const saveGameState = async (userId, gameState) => {
     const totalWins = parseInt(gameState.totalWins) || 0;
     const totalWinnings = parseFloat(gameState.totalWinnings) || 0;
     const streak = parseInt(gameState.streak) || 0;
+    const highestStreak = parseInt(gameState.highestStreak) || 0;
     const upgradeCount = parseInt(gameState.upgradeCount) || 0;
     const hasWonFirstBet = gameState.hasWonFirstBet === true;
     const completedTutorial = gameState.completedTutorial === true;
@@ -91,15 +92,16 @@ export const saveGameState = async (userId, gameState) => {
           total_wins = $5,
           total_winnings = $6,
           streak = $7,
-          unlocked_bets = $8,
-          unlocked_chips = $9,
-          achievements = $10,
-          place_bet_expert_wins = $11,
-          quests = $12,
-          upgrade_count = $13,
-          has_won_first_bet = $14,
-          completed_tutorial = $15,
-          unlocked_tutorials = $16,
+          highest_streak = $8,
+          unlocked_bets = $9,
+          unlocked_chips = $10,
+          achievements = $11,
+          place_bet_expert_wins = $12,
+          quests = $13,
+          upgrade_count = $14,
+          has_won_first_bet = $15,
+          completed_tutorial = $16,
+          unlocked_tutorials = $17,
           updated_at = CURRENT_TIMESTAMP
         WHERE user_id = $1`,
         [
@@ -110,6 +112,7 @@ export const saveGameState = async (userId, gameState) => {
           totalWins,
           totalWinnings,
           streak,
+          highestStreak,
           unlockedBets,
           unlockedChips,
           achievements,
@@ -127,9 +130,9 @@ export const saveGameState = async (userId, gameState) => {
       await query(
         `INSERT INTO game_states (
           user_id, bankroll, passive_income, total_rolls, total_wins, total_winnings,
-          streak, unlocked_bets, unlocked_chips, achievements, place_bet_expert_wins,
+          streak, highest_streak, unlocked_bets, unlocked_chips, achievements, place_bet_expert_wins,
           quests, upgrade_count, has_won_first_bet, completed_tutorial, unlocked_tutorials
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)`,
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)`,
         [
           userId,
           bankroll,
@@ -138,6 +141,7 @@ export const saveGameState = async (userId, gameState) => {
           totalWins,
           totalWinnings,
           streak,
+          highestStreak,
           unlockedBets,
           unlockedChips,
           achievements,
@@ -184,6 +188,7 @@ export const getGameState = async (userId) => {
         totalWins: parseInt(gameState.total_wins) || 0,
         totalWinnings: parseFloat(gameState.total_winnings) || 0,
         streak: parseInt(gameState.streak) || 0,
+        highestStreak: parseInt(gameState.highest_streak) || 0,
         unlockedBets: typeof gameState.unlocked_bets === 'string' ? JSON.parse(gameState.unlocked_bets) : gameState.unlocked_bets || {},
         unlockedChips: typeof gameState.unlocked_chips === 'string' ? JSON.parse(gameState.unlocked_chips) : gameState.unlocked_chips || [],
         achievements: typeof gameState.achievements === 'string' ? JSON.parse(gameState.achievements) : gameState.achievements || [],
@@ -207,6 +212,7 @@ export const getGameState = async (userId) => {
         totalWins: parseInt(gameState.total_wins) || 0,
         totalWinnings: parseFloat(gameState.total_winnings) || 0,
         streak: parseInt(gameState.streak) || 0,
+        highestStreak: parseInt(gameState.highest_streak) || 0,
         unlockedBets: { 'pass-line': true },
         unlockedChips: [1, 5, 10],
         lastSaveTime: gameState.updated_at
@@ -225,17 +231,19 @@ export const updateLeaderboard = async (userId, bankroll, totalWinnings) => {
     const userResult = await query('SELECT username FROM users WHERE id = $1', [userId]);
     const username = userResult.rows[0].username;
     
-    // Get current streak and passive income from game_states
+    // Get highest streak and passive income from game_states
     const gameStateResult = await query(
-      'SELECT streak, passive_income FROM game_states WHERE user_id = $1',
+      'SELECT streak, highest_streak, passive_income FROM game_states WHERE user_id = $1',
       [userId]
     );
     
-    let streak = 0;
+    let highestStreak = 0;
     let passiveIncome = 1;
     
     if (gameStateResult.rows.length > 0) {
-      streak = parseInt(gameStateResult.rows[0].streak) || 0;
+      // Use the highest_streak field if it exists, otherwise fall back to streak
+      highestStreak = parseInt(gameStateResult.rows[0].highest_streak) ||
+                      parseInt(gameStateResult.rows[0].streak) || 0;
       passiveIncome = parseFloat(gameStateResult.rows[0].passive_income) || 1;
     }
     
@@ -267,8 +275,8 @@ export const updateLeaderboard = async (userId, bankroll, totalWinnings) => {
         const currentHighestStreak = streakResult.rows.length > 0 ?
           (parseInt(streakResult.rows[0].highest_win_streak) || 0) : 0;
         
-        // Only update highest_win_streak if current streak is higher
-        const newHighestStreak = Math.max(currentHighestStreak, streak);
+        // Only update highest_win_streak if current highest streak is higher
+        const newHighestStreak = Math.max(currentHighestStreak, highestStreak);
         
         // Update with new columns
         await query(

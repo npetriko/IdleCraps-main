@@ -682,6 +682,14 @@
   font-size: 1.2em;
   pointer-events: none;
   animation: fadeIn 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hover-chip-value::before {
+  content: '$';
+  margin-right: 2px;
 }
 
 @keyframes fadeIn {

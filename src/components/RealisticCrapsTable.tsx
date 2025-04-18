@@ -126,7 +126,7 @@ const RealisticCrapsTable = ({
       {/* Show selected chip value when hovering */}
       {hoveredArea && selectedChip && (
         <div className="hover-chip-value">
-          {formatNumber(selectedChip, false)}
+          {selectedChip}
         </div>
       )}
       
@@ -157,7 +157,7 @@ const RealisticCrapsTable = ({
           >
             <span>4</span>
             {point === 4 && <div className="on-puck"></div>}
-            {getBetAmount('place-4') > 0 && <div className="place-bet-amount">{formatNumber(getBetAmount('place-4'), false)}</div>}
+            {getBetAmount('place-4') > 0 && <div className="place-bet-amount">{formatNumber(getBetAmount('place-4'))}</div>}
             {hasComeBetOn(4) && <div className="come-bet-indicator">{formatNumber(getComeBetAmount(4), false)}</div>}
             {hasDontComeBetOn(4) && <div className="dont-come-bet-indicator">{formatNumber(getDontComeBetAmount(4), false)}</div>}
             {renderLockIcon('place-4')}
@@ -173,7 +173,7 @@ const RealisticCrapsTable = ({
           >
             <span>5</span>
             {point === 5 && <div className="on-puck"></div>}
-            {getBetAmount('place-5') > 0 && <div className="place-bet-amount">{formatNumber(getBetAmount('place-5'), false)}</div>}
+            {getBetAmount('place-5') > 0 && <div className="place-bet-amount">{formatNumber(getBetAmount('place-5'))}</div>}
             {hasComeBetOn(5) && <div className="come-bet-indicator">{formatNumber(getComeBetAmount(5), false)}</div>}
             {hasDontComeBetOn(5) && <div className="dont-come-bet-indicator">{formatNumber(getDontComeBetAmount(5), false)}</div>}
             {renderLockIcon('place-5')}
@@ -189,7 +189,7 @@ const RealisticCrapsTable = ({
           >
             <span style={{ transform: 'rotate(-20deg)' }}>SIX</span>
             {point === 6 && <div className="on-puck"></div>}
-            {getBetAmount('place-6') > 0 && <div className="place-bet-amount">{formatNumber(getBetAmount('place-6'), false)}</div>}
+            {getBetAmount('place-6') > 0 && <div className="place-bet-amount">{formatNumber(getBetAmount('place-6'))}</div>}
             {hasComeBetOn(6) && <div className="come-bet-indicator">{formatNumber(getComeBetAmount(6), false)}</div>}
             {hasDontComeBetOn(6) && <div className="dont-come-bet-indicator">{formatNumber(getDontComeBetAmount(6), false)}</div>}
             {renderLockIcon('place-6')}
@@ -205,7 +205,7 @@ const RealisticCrapsTable = ({
           >
             <span>8</span>
             {point === 8 && <div className="on-puck"></div>}
-            {getBetAmount('place-8') > 0 && <div className="place-bet-amount">{formatNumber(getBetAmount('place-8'), false)}</div>}
+            {getBetAmount('place-8') > 0 && <div className="place-bet-amount">{formatNumber(getBetAmount('place-8'))}</div>}
             {hasComeBetOn(8) && <div className="come-bet-indicator">{formatNumber(getComeBetAmount(8), false)}</div>}
             {hasDontComeBetOn(8) && <div className="dont-come-bet-indicator">{formatNumber(getDontComeBetAmount(8), false)}</div>}
             {renderLockIcon('place-8')}
@@ -221,7 +221,7 @@ const RealisticCrapsTable = ({
           >
             <span style={{ transform: 'rotate(-20deg)' }}>NINE</span>
             {point === 9 && <div className="on-puck"></div>}
-            {getBetAmount('place-9') > 0 && <div className="place-bet-amount">{formatNumber(getBetAmount('place-9'), false)}</div>}
+            {getBetAmount('place-9') > 0 && <div className="place-bet-amount">{formatNumber(getBetAmount('place-9'))}</div>}
             {hasComeBetOn(9) && <div className="come-bet-indicator">{formatNumber(getComeBetAmount(9), false)}</div>}
             {hasDontComeBetOn(9) && <div className="dont-come-bet-indicator">{formatNumber(getDontComeBetAmount(9), false)}</div>}
             {renderLockIcon('place-9')}
@@ -237,7 +237,7 @@ const RealisticCrapsTable = ({
           >
             <span>10</span>
             {point === 10 && <div className="on-puck"></div>}
-            {getBetAmount('place-10') > 0 && <div className="place-bet-amount">{formatNumber(getBetAmount('place-10'), false)}</div>}
+            {getBetAmount('place-10') > 0 && <div className="place-bet-amount">{formatNumber(getBetAmount('place-10'))}</div>}
             {hasComeBetOn(10) && <div className="come-bet-indicator">{formatNumber(getComeBetAmount(10), false)}</div>}
             {hasDontComeBetOn(10) && <div className="dont-come-bet-indicator">{formatNumber(getDontComeBetAmount(10), false)}</div>}
             {renderLockIcon('place-10')}
