@@ -42,16 +42,30 @@ app.use(session({
   cookie: {
     maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
     secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',  // Add sameSite attribute
-    httpOnly: true    // Add httpOnly attribute
+    sameSite: 'none',  // Changed from 'lax' to 'none' for cross-site requests
+    httpOnly: true,    // Add httpOnly attribute
+    domain: process.env.NODE_ENV === 'production' ? '.idlecraps.com' : 'localhost' // Add domain attribute
   }
 }));
 
+// Debug middleware to log all requests and their session data
+app.use((req, res, next) => {
+  console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
+  console.log('Request cookies:', req.headers.cookie);
+  console.log('Session data:', req.session);
+  next();
+});
+
 // Authentication middleware
 const isAuthenticated = (req, res, next) => {
+  console.log('Session data:', req.session);
+  console.log('Cookies:', req.headers.cookie);
+  
   if (req.session.userId) {
+    console.log('User authenticated:', req.session.userId, req.session.username);
     next();
   } else {
+    console.log('Authentication failed - no userId in session');
     res.status(401).json({ error: 'Authentication required' });
   }
 };
@@ -125,11 +139,16 @@ app.post('/api/login', async (req, res) => {
     req.session.isAdmin = user.is_admin;
     
     // Save session explicitly
+    console.log('Before save - Session data:', req.session);
+    
     req.session.save(err => {
       if (err) {
         console.error('Session save error:', err);
         return res.status(500).json({ error: 'Error saving session' });
       }
+      
+      console.log('After save - Session data:', req.session);
+      console.log('Session ID:', req.session.id);
       
       res.json({
         message: 'Login successful',
@@ -156,16 +175,26 @@ app.post('/api/logout', (req, res) => {
 });
 
 // Get current user
-app.get('/api/user', isAuthenticated, (req, res) => {
-  res.json({
-    username: req.session.username,
-    isAdmin: req.session.isAdmin
-  });
+app.get('/api/user', (req, res) => {
+  console.log('/api/user - Session data:', req.session);
+  console.log('/api/user - Cookies:', req.headers.cookie);
+  
+  if (req.session.userId) {
+    console.log('/api/user - User authenticated:', req.session.userId, req.session.username);
+    res.json({
+      username: req.session.username,
+      isAdmin: req.session.isAdmin
+    });
+  } else {
+    console.log('/api/user - No userId in session');
+    res.status(401).json({ error: 'Authentication required' });
+  }
 });
 
 // Save game state
 app.post('/api/gamestate', isAuthenticated, async (req, res) => {
   try {
+    console.log('/api/gamestate POST - Session data:', req.session);
     const userId = req.session.userId;
     const gameState = req.body;
     
@@ -189,9 +218,24 @@ app.post('/api/gamestate', isAuthenticated, async (req, res) => {
   }
 });
 
+// Debug endpoint to check session status
+app.get('/api/debug/session', (req, res) => {
+  console.log('Debug session - Session data:', req.session);
+  console.log('Debug session - Cookies:', req.headers.cookie);
+  
+  res.json({
+    sessionExists: !!req.session,
+    hasUserId: !!req.session.userId,
+    userId: req.session.userId,
+    username: req.session.username,
+    cookiesHeader: req.headers.cookie
+  });
+});
+
 // Load game state
 app.get('/api/gamestate', isAuthenticated, async (req, res) => {
   try {
+    console.log('/api/gamestate GET - Session data:', req.session);
     const userId = req.session.userId;
     const gameState = await db.getGameState(userId);
     
