@@ -5,10 +5,23 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 // Create a new pool using environment variables
-const pool = new Pool({
-  // Connection details are automatically read from environment variables:
-  // PGUSER, PGHOST, PGPASSWORD, PGDATABASE, PGPORT
-});
+let pool;
+
+// Check if DATABASE_URL is provided (common in deployment environments like Render)
+if (process.env.DATABASE_URL) {
+  pool = new Pool({
+    connectionString: process.env.DATABASE_URL,
+    ssl: {
+      rejectUnauthorized: false // Required for some PostgreSQL providers
+    }
+  });
+} else {
+  // Use individual environment variables (common in local development)
+  pool = new Pool({
+    // Connection details are automatically read from environment variables:
+    // PGUSER, PGHOST, PGPASSWORD, PGDATABASE, PGPORT
+  });
+}
 
 // Test the connection
 pool.query('SELECT NOW()', (err, res) => {

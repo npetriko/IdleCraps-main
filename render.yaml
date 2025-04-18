@@ -9,3 +9,5 @@ services:
         value: production
       - key: PORT
         value: 10000
+      - key: DATABASE_URL
+        value: postgresql://idle_craps_data_user:9S745v3fbMdMGtZs1cxZ7qoTISZgs4Qn@dpg-d015lsq4d50c73csnu30-a/idle_craps_data
