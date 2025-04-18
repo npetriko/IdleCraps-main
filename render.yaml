@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: idle-craps
+    env: node
+    buildCommand: chmod +x ./render-build.sh && ./render-build.sh
+    startCommand: chmod +x ./render-start.sh && ./render-start.sh
+    envVars:
+      - key: NODE_ENV
+        value: production
