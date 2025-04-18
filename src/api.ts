@@ -105,6 +105,7 @@ export const loginUser = async (username: string, password: string) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ username, password }),
+      credentials: 'include' // Add credentials for session cookies
     });
     
     if (!response.ok) {
@@ -124,6 +125,7 @@ export const logoutUser = async () => {
   try {
     const response = await fetch('/api/logout', {
       method: 'POST',
+      credentials: 'include' // Add credentials for session cookies
     });
     
     if (!response.ok) {
@@ -140,7 +142,9 @@ export const logoutUser = async () => {
 // Get current user
 export const getCurrentUser = async () => {
   try {
-    const response = await fetch('/api/user');
+    const response = await fetch('/api/user', {
+      credentials: 'include' // Add credentials for session cookies
+    });
     
     if (!response.ok) {
       return null;
@@ -162,6 +166,7 @@ export const migrateLocalStorageData = async (gameState: any) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ gameState }),
+      credentials: 'include' // Add credentials for session cookies
     });
     
     if (!response.ok) {
@@ -180,7 +185,9 @@ export const migrateLocalStorageData = async (gameState: any) => {
 // Get all users (admin only)
 export const getAllUsers = async () => {
   try {
-    const response = await fetch('/api/admin/users');
+    const response = await fetch('/api/admin/users', {
+      credentials: 'include' // Add credentials for session cookies
+    });
     
     if (!response.ok) {
       throw new Error('Failed to fetch users');
@@ -198,6 +205,7 @@ export const deleteUser = async (userId: number) => {
   try {
     const response = await fetch(`/api/admin/users/${userId}`, {
       method: 'DELETE',
+      credentials: 'include' // Add credentials for session cookies
     });
     
     if (!response.ok) {
@@ -214,7 +222,9 @@ export const deleteUser = async (userId: number) => {
 // Get leaderboard data
 export const getLeaderboard = async (limit = 100) => {
   try {
-    const response = await fetch(`/api/leaderboard?limit=${limit}`);
+    const response = await fetch(`/api/leaderboard?limit=${limit}`, {
+      credentials: 'include' // Add credentials for session cookies
+    });
     
     if (!response.ok) {
       throw new Error('Failed to fetch leaderboard');
