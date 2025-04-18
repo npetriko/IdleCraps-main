@@ -122,7 +122,7 @@ const AccountSystem: React.FC<AccountSystemProps> = ({
       setTimeout(() => setSuccessMessage(''), 3000);
 
       // Check if there's localStorage data to migrate
-      migrateLocalStorageData(data.user.username);
+      migrateLocalStorageData();
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : 'Login failed');
     } finally {
@@ -131,7 +131,7 @@ const AccountSystem: React.FC<AccountSystemProps> = ({
   };
 
   // Migrate localStorage data if available
-  const migrateLocalStorageData = async (username: string) => {
+  const migrateLocalStorageData = async () => {
     try {
       // Check for localStorage game state
       const savedGameState = localStorage.getItem('idleCrapsGameState');

@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { User } from './AccountSystem';
 import { FaUserShield, FaTrash, FaCoins, FaCalendarAlt, FaClock } from 'react-icons/fa';
 import '../AdminPanel.css';
 
@@ -7,30 +6,41 @@ interface AdminPanelProps {
   currentUser: string | null;
 }
 
-interface UserWithStats extends User {
-  passiveIncome?: number;
+interface UserWithStats {
+  id: number;
+  username: string;
+  is_admin: boolean;
+  created_at: string;
+  last_login: string;
+  bankroll?: number;
+  passive_income?: number;
+  total_rolls?: number;
+  total_wins?: number;
+  total_winnings?: number;
 }
 
 const AdminPanel: React.FC<AdminPanelProps> = ({ currentUser }) => {
-  const [users, setUsers] = useState<{ [key: string]: UserWithStats }>({});
+  const [users, setUsers] = useState<UserWithStats[]>([]);
   const [showPanel, setShowPanel] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
 
-  // Get users from localStorage
-  const getUsers = (): { [key: string]: UserWithStats } => {
-    const users = localStorage.getItem('idleCrapsUsers');
-    return users ? JSON.parse(users) : {};
-  };
-
-  // Save users to localStorage
-  const saveUsers = (users: { [key: string]: UserWithStats }) => {
-    localStorage.setItem('idleCrapsUsers', JSON.stringify(users));
+  // Get users from API
+  const getUsers = async () => {
+    try {
+      // Import the API function
+      const { getAllUsers } = await import('../api');
+      const usersData = await getAllUsers();
+      setUsers(usersData);
+    } catch (error) {
+      console.error('Error fetching users:', error);
+      alert('Failed to fetch users. Please try again.');
+    }
   };
 
   // Load users when panel is opened
   useEffect(() => {
     if (showPanel) {
-      setUsers(getUsers());
+      getUsers();
     }
   }, [showPanel]);
 
@@ -59,28 +69,30 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ currentUser }) => {
   };
 
   // Delete a user account
-  const deleteUser = (username: string) => {
+  const handleDeleteUser = async (userId: number, username: string) => {
     if (username === currentUser) {
       alert("You cannot delete your own account");
       return;
     }
     
-    if (username === 'admin') {
-      alert("Cannot delete the admin account");
-      return;
-    }
-    
     if (window.confirm(`Are you sure you want to delete the account for ${username}?`)) {
-      const updatedUsers = { ...users };
-      delete updatedUsers[username];
-      setUsers(updatedUsers);
-      saveUsers(updatedUsers);
+      try {
+        // Import the API function
+        const { deleteUser } = await import('../api');
+        await deleteUser(userId);
+        
+        // Refresh the user list
+        getUsers();
+      } catch (error) {
+        console.error('Error deleting user:', error);
+        alert('Failed to delete user. Please try again.');
+      }
     }
   };
 
   // Filter users based on search term
-  const filteredUsers = Object.entries(users).filter(([username]) => 
-    username.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredUsers = users.filter(user =>
+    user.username.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -105,7 +117,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ currentUser }) => {
           </div>
           
           <div className="user-count">
-            Total accounts: {Object.keys(users).length}
+            Total accounts: {users.length}
           </div>
           
           <div className="admin-users-list">
@@ -120,27 +132,27 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ currentUser }) => {
                 </tr>
               </thead>
               <tbody>
-                {filteredUsers.map(([username, user]) => (
-                  <tr key={username}>
-                    <td className={user.isAdmin ? 'admin-user' : ''}>
-                      {username} {user.isAdmin && '(Admin)'}
+                {filteredUsers.map(user => (
+                  <tr key={user.id}>
+                    <td className={user.is_admin ? 'admin-user' : ''}>
+                      {user.username} {user.is_admin && '(Admin)'}
                     </td>
                     <td>
-                      {user.gameState?.passiveIncome 
-                        ? `$${user.gameState.passiveIncome.toFixed(2)}/tick` 
+                      {user.passive_income
+                        ? `$${user.passive_income.toFixed(2)}/tick`
                         : 'N/A'}
                     </td>
-                    <td title={formatDate(user.createdAt)}>
-                      {formatTimeSince(user.createdAt)}
+                    <td title={formatDate(user.created_at)}>
+                      {formatTimeSince(user.created_at)}
                     </td>
-                    <td title={formatDate(user.lastLogin)}>
-                      {formatTimeSince(user.lastLogin)}
+                    <td title={formatDate(user.last_login)}>
+                      {formatTimeSince(user.last_login)}
                     </td>
                     <td>
-                      <button 
+                      <button
                         className="delete-user-button"
-                        onClick={() => deleteUser(username)}
-                        disabled={username === 'admin' || username === currentUser}
+                        onClick={() => handleDeleteUser(user.id, user.username)}
+                        disabled={user.is_admin || user.username === currentUser}
                       >
                         <FaTrash />
                       </button>

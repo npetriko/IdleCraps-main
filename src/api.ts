@@ -143,6 +143,42 @@ export const migrateLocalStorageData = async (gameState: any) => {
   }
 };
 
+// Admin API functions
+
+// Get all users (admin only)
+export const getAllUsers = async () => {
+  try {
+    const response = await fetch('/api/admin/users');
+    
+    if (!response.ok) {
+      throw new Error('Failed to fetch users');
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching users:', error);
+    throw error;
+  }
+};
+
+// Delete a user (admin only)
+export const deleteUser = async (userId: number) => {
+  try {
+    const response = await fetch(`/api/admin/users/${userId}`, {
+      method: 'DELETE',
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to delete user');
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Error deleting user:', error);
+    throw error;
+  }
+};
+
 // Get leaderboard data
 export const getLeaderboard = async (limit = 100) => {
   try {

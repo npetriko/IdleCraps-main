@@ -193,6 +193,64 @@ app.get('/api/leaderboard', async (req, res) => {
   }
 });
 
+// Admin routes
+// Middleware to check if user is admin
+const isAdmin = (req, res, next) => {
+  if (req.session.userId && req.session.isAdmin) {
+    next();
+  } else {
+    res.status(403).json({ error: 'Admin access required' });
+  }
+};
+
+// Get all users (admin only)
+app.get('/api/admin/users', isAdmin, async (req, res) => {
+  try {
+    const result = await db.query(
+      `SELECT u.id, u.username, u.is_admin, u.created_at, u.last_login,
+       g.bankroll, g.passive_income, g.total_rolls, g.total_wins, g.total_winnings
+       FROM users u
+       LEFT JOIN game_states g ON u.id = g.user_id
+       ORDER BY u.created_at DESC`
+    );
+    
+    res.json(result.rows);
+  } catch (error) {
+    console.error('Admin users error:', error);
+    res.status(500).json({ error: 'Server error fetching users' });
+  }
+});
+
+// Delete a user (admin only)
+app.delete('/api/admin/users/:id', isAdmin, async (req, res) => {
+  try {
+    const userId = parseInt(req.params.id);
+    
+    // Don't allow deleting self
+    if (userId === req.session.userId) {
+      return res.status(400).json({ error: 'Cannot delete your own account' });
+    }
+    
+    // Check if user exists and is not an admin
+    const userResult = await db.query('SELECT is_admin FROM users WHERE id = $1', [userId]);
+    if (userResult.rows.length === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    
+    if (userResult.rows[0].is_admin) {
+      return res.status(400).json({ error: 'Cannot delete admin accounts' });
+    }
+    
+    // Delete user (cascade will delete game_states and leaderboard entries)
+    await db.query('DELETE FROM users WHERE id = $1', [userId]);
+    
+    res.json({ message: 'User deleted successfully' });
+  } catch (error) {
+    console.error('Admin delete user error:', error);
+    res.status(500).json({ error: 'Server error deleting user' });
+  }
+});
+
 // Migrate localStorage data to database
 app.post('/api/migrate', isAuthenticated, async (req, res) => {
   try {
