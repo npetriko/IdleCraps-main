@@ -6,6 +6,7 @@ import session from 'express-session';
 import pgSession from 'connect-pg-simple';
 import bcrypt from 'bcryptjs';
 import dotenv from 'dotenv';
+import cors from 'cors';
 import pool, * as db from './src/db.js';
 
 // Load environment variables
@@ -18,6 +19,13 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Middleware
+// CORS configuration
+app.use(cors({
+  origin: process.env.NODE_ENV === 'production'
+    ? 'https://idlecraps.com'
+    : 'http://localhost:3000',
+  credentials: true
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -31,9 +39,11 @@ app.use(session({
   secret: process.env.SESSION_SECRET || 'idle-craps-secret',
   resave: false,
   saveUninitialized: false,
-  cookie: { 
+  cookie: {
     maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
-    secure: process.env.NODE_ENV === 'production'
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',  // Add sameSite attribute
+    httpOnly: true    // Add httpOnly attribute
   }
 }));
 
@@ -114,12 +124,20 @@ app.post('/api/login', async (req, res) => {
     req.session.username = user.username;
     req.session.isAdmin = user.is_admin;
     
-    res.json({
-      message: 'Login successful',
-      user: {
-        username: user.username,
-        isAdmin: user.is_admin
+    // Save session explicitly
+    req.session.save(err => {
+      if (err) {
+        console.error('Session save error:', err);
+        return res.status(500).json({ error: 'Error saving session' });
       }
+      
+      res.json({
+        message: 'Login successful',
+        user: {
+          username: user.username,
+          isAdmin: user.is_admin
+        }
+      });
     });
   } catch (error) {
     console.error('Login error:', error);

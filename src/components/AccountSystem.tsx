@@ -38,7 +38,9 @@ const AccountSystem: React.FC<AccountSystemProps> = ({
   useEffect(() => {
     const checkSession = async () => {
       try {
-        const response = await fetch('/api/user');
+        const response = await fetch('/api/user', {
+          credentials: 'include' // Add credentials for session cookies
+        });
         if (response.ok) {
           const data = await response.json();
           onLogin(data.username, data.isAdmin);
@@ -68,6 +70,7 @@ const AccountSystem: React.FC<AccountSystemProps> = ({
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ username, password }),
+        credentials: 'include' // Add credentials for session cookies
       });
 
       const data = await response.json();
@@ -102,6 +105,7 @@ const AccountSystem: React.FC<AccountSystemProps> = ({
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ username, password }),
+        credentials: 'include' // Add credentials for session cookies
       });
 
       const data = await response.json();
@@ -189,6 +193,7 @@ const AccountSystem: React.FC<AccountSystemProps> = ({
     try {
       await fetch('/api/logout', {
         method: 'POST',
+        credentials: 'include' // Add credentials for session cookies
       });
       onLogout();
     } catch (error) {
