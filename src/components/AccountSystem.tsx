@@ -131,36 +131,25 @@ const AccountSystem: React.FC<AccountSystemProps> = ({
   };
 
   // Migrate localStorage data if available
-  const migrateLocalStorageData = (username: string) => {
+  const migrateLocalStorageData = async (username: string) => {
     try {
       // Check for localStorage game state
       const savedGameState = localStorage.getItem('idleCrapsGameState');
       if (savedGameState) {
-        // Get the old user data
-        const users = localStorage.getItem('idleCrapsUsers');
-        if (users) {
-          const parsedUsers = JSON.parse(users);
-          const user = parsedUsers[username];
+        try {
+          // Import the API function
+          const { migrateLocalStorageData: migrateData } = await import('../api');
           
-          if (user) {
-            // Migrate data to server
-            fetch('/api/migrate', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({ gameState: JSON.parse(savedGameState) }),
-            })
-            .then(response => {
-              if (response.ok) {
-                setSuccessMessage('Game data migrated successfully!');
-                setTimeout(() => setSuccessMessage(''), 3000);
-              }
-            })
-            .catch(error => {
-              console.error('Migration error:', error);
-            });
-          }
+          // Migrate data to server
+          await migrateData(JSON.parse(savedGameState));
+          
+          setSuccessMessage('Game data migrated successfully!');
+          setTimeout(() => setSuccessMessage(''), 3000);
+          
+          // Optionally clear localStorage after successful migration
+          // localStorage.removeItem('idleCrapsGameState');
+        } catch (apiError) {
+          console.error('Migration API error:', apiError);
         }
       }
     } catch (error) {

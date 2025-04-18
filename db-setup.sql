@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS users (
   last_login TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Create game_states table
+
 CREATE TABLE IF NOT EXISTS game_states (
   id SERIAL PRIMARY KEY,
   user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS game_states (
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Create leaderboard table
+
 CREATE TABLE IF NOT EXISTS leaderboard (
   id SERIAL PRIMARY KEY,
   user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
@@ -40,7 +40,7 @@ CREATE TABLE IF NOT EXISTS leaderboard (
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Create sessions table for express-session with connect-pg-simple
+
 CREATE TABLE IF NOT EXISTS "session" (
   "sid" varchar NOT NULL COLLATE "default",
   "sess" json NOT NULL,
@@ -48,10 +48,9 @@ CREATE TABLE IF NOT EXISTS "session" (
   CONSTRAINT "session_pkey" PRIMARY KEY ("sid")
 );
 
--- Create index on session expiration
+
 CREATE INDEX IF NOT EXISTS "IDX_session_expire" ON "session" ("expire");
 
--- Create admin user if it doesn't exist (password: @W7PreRL)
-INSERT INTO users (username, password_hash, is_admin)
+
 VALUES ('azurim', '$2b$10$3euPcmQFCiblsZeEu5s7p.9wVsruW1zf.gP.IfY5dtWw3jQUy3BPu', TRUE)
 ON CONFLICT (username) DO NOTHING;
