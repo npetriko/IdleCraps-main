@@ -1,0 +1,22 @@
+export const CRAPS_TIPS = [
+  "Keep only one hand over the table when handling chips or dice",
+  "Never say the word 'seven' at the table - it's considered bad luck",
+  "Don't touch your chips once the dice are out",
+  "Tip the dealers occasionally, especially when you're winning",
+  "Don't hand money directly to dealers - place it on the table",
+  "Cheer for other players' rolls - craps is a community game",
+  "Don't throw the dice too hard - aim to hit the back wall gently",
+  "Hold the dice with only one hand when throwing",
+  "The 'come out' roll is the first roll of a new betting round",
+  "Superstition: blowing on dice for luck is common but optional",
+  "Don't place or remove bets when the dice are in motion",
+  "Wait until the dealer pays all bets before placing new ones",
+  "Never touch your pass line bet once it's placed",
+  "Place your odds bets behind your pass line bet, not on top",
+  "The 'stickman' is the dealer who moves the dice with a stick",
+  "Don't lean on the rail - keep a respectful distance",
+  "First-time players should start with Pass Line bets",
+  "Many players consider it bad luck to change dice during a hot roll",
+  "Stack your chips neatly for easier handling by the dealers",
+  "In real casinos, it's usually not allowed to take photos at the table"
+]; 

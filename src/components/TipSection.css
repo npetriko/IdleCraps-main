@@ -1,0 +1,63 @@
+.tip-section {
+  background: rgba(0, 0, 0, 0.25);
+  padding: 4px 8px;
+  border-radius: 6px;
+  margin-bottom: 2px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  box-sizing: border-box;
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+.tip-header {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 2px;
+}
+
+.tip-icon {
+  color: #FFC107;
+  font-size: 0.85rem;
+  will-change: text-shadow;
+}
+
+.tip-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #FFC107;
+  position: relative;
+  padding-bottom: 1px;
+}
+
+.tip-title::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 24px;
+  height: 1px;
+  background: #FFC107;
+}
+
+.tip-content {
+  font-size: 0.85rem;
+  line-height: 1.3;
+  color: #fff;
+  opacity: 0.9;
+  min-height: 1.2em;
+  will-change: opacity;
+  transition: opacity 0.3s ease;
+}
+
+@keyframes glow {
+  from {
+    text-shadow: 0 0 3px rgba(255, 193, 7, 0.5);
+  }
+  to {
+    text-shadow: 0 0 6px rgba(255, 193, 7, 0.8);
+  }
+} 

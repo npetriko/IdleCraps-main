@@ -1,0 +1,10 @@
+Review initial tutorials for accuracy (7 and 9?)
+Add further upgrades:
+	Passive Income increased percentage
+	Auto-Betting
+	Auto-Rolling
+	Win-Streak Bonus
+Add Casino Mode
+Casino etiquette tips
+More hand holding during the tutorial
+Fix tutorial highlighting

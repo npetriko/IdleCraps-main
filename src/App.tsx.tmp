@@ -1,0 +1,787 @@
+import React, { useState, useRef, useEffect } from 'react'
+import './App.css'
+import RealisticCrapsTable from './components/RealisticCrapsTable'
+import { FaQuestion, FaShareAlt, FaTrophy, FaTerminal, FaCoins, FaFire, FaLock, FaTimes } from 'react-icons/fa'
+import AccountSystem from './components/AccountSystem'
+import AdminPanel from './components/AdminPanel'
+import CheatTerminal from './components/CheatTerminal'
+import Tutorial from './components/Tutorial'
+import TutorialSelector, { TutorialTopic } from './components/TutorialSelector'
+import Quests, { Quest } from './components/Quests'
+import QuestTutorial from './components/QuestTutorial'
+import Upgrades, { BET_UNLOCK_COSTS, CHIP_UNLOCK_COSTS } from './components/Upgrades'
+
+// Dice face characters
+const DICE_FACES: { [key: number]: string } = {
+  1: '⚀',
+  2: '⚁',
+  3: '⚂',
+  4: '⚃',
+  5: '⚄',
+  6: '⚅'
+};
+
+// Achievement definitions (Keep as is for now)
+const ACHIEVEMENTS = [
+  { id: 'first_win', name: 'First Win', description: 'Win your first bet', icon: '🎉', unlocked: false, reward: 50 },
+  { id: 'big_winner', name: 'Big Winner', description: 'Win $500 in a single roll', icon: '💰', unlocked: false, reward: 100 },
+  { id: 'streak_3', name: 'Hot Streak', description: 'Win 3 bets in a row', icon: '🔥', unlocked: false, reward: 75 },
+  { id: 'bankroll_5000', name: 'High Roller', description: 'Reach a bankroll of $5,000', icon: '💎', unlocked: false, reward: 200 },
+  { id: 'all_bets', name: 'Betting Expert', description: 'Place all types of bets', icon: '🎲', unlocked: false, reward: 150 },
+  { id: 'daily_7', name: 'Consistent Player', description: 'Play 7 days in a row', icon: '📅', unlocked: false, reward: 250 },
+  { id: 'streak_10', name: 'Legend', description: 'Win 10 bets in a row', icon: '👑', unlocked: false, reward: 500 },
+  { id: 'rolls_100', name: 'Dice Master', description: 'Roll the dice 100 times', icon: '🎯', unlocked: false, reward: 100 },
+  { id: 'share_game', name: 'Influencer', description: 'Share the game on social media', icon: '📱', unlocked: false, reward: 75 },
+  { id: 'upgrade_5', name: 'Entrepreneur', description: 'Upgrade passive income 5 times', icon: '📈', unlocked: false, reward: 150 },
+  { id: 'bankroll_10000', name: 'Millionaire', description: 'Reach a bankroll of $10,000', icon: '💸', unlocked: false, reward: 500 },
+  { id: 'comeback', name: 'Comeback Kid', description: 'Win after dropping below $100', icon: '🔄', unlocked: false, reward: 200 },
+  { id: 'unlock_all', name: 'Completionist', description: 'Unlock all betting options', icon: '🔑', unlocked: false, reward: 1000 },
+];
+
+// Available chip values
+const CHIP_VALUES = [1, 5, 10, 25, 50, 100];
+
+// Tick speed in ms
+const TickSpeed = 10000;
+
+// Payout Multipliers/Odds
+const PLACE_BET_PAYOUTS: { [key: number]: number } = {
+  4: 9/5,
+  5: 7/5,
+  6: 7/6,
+  8: 7/6,
+  9: 7/5,
+  10: 9/5,
+};
+const FIELD_BET_PAYOUTS: { [key: number]: number } = {
+  2: 2, // Pays 2:1
+  3: 1, // Pays 1:1
+  4: 1,
+  9: 1,
+  10: 1,
+  11: 1,
+  12: 2, // Pays 2:1
+};
+
+function App() {
+  // Basic game state
+  const [bankroll, setBankroll] = useState(100);
+  const [dice, setDice] = useState<[number, number]>([1, 1]);
+  const [isRolling, setIsRolling] = useState(false);
+  const [point, setPoint] = useState<number | null>(null);
+  const [results, setResults] = useState<string[]>([]);
+  const [passiveIncome, setPassiveIncome] = useState(1);
+  const [totalWinnings, setTotalWinnings] = useState(0); // Track total PROFIT from bets
+  const animationDurations = useRef<[number, number]>([0.5, 0.5]);
+
+  // Additional state for betting
+  const [activeBets, setActiveBets] = useState<{ [key: string]: number }>({});
+  const [unlockedBets, setUnlockedBets] = useState<{ [key: string]: boolean }>({
+    'pass-line': true
+  });
+  const [selectedChip, setSelectedChip] = useState(5);
+  const [comePoints, setComePoints] = useState<{ [key: string]: number }>({});
+  const [dontComePoints, setDontComePoints] = useState<{ [key: string]: number }>({});
+  const [placeBetExpertWins, setPlaceBetExpertWins] = useState<Set<number>>(new Set()); // Track unique wins for quest
+
+  // Tutorial state
+  const [showTutorial, setShowTutorial] = useState(true); // Start with tutorial visible
+  const [completedTutorial, setCompletedTutorial] = useState(false);
+  const [showTutorialSelector, setShowTutorialSelector] = useState(false);
+  const [currentTutorialStep, setCurrentTutorialStep] = useState(0);
+  const [unlockedTutorials, setUnlockedTutorials] = useState<string[]>(['basics']);
+  const [showQuestTutorial, setShowQuestTutorial] = useState(false);
+  const [currentQuestTutorial, setCurrentQuestTutorial] = useState<string | null>(null);
+
+  // UI state
+  const [showAchievements, setShowAchievements] = useState(false);
+  const [showUpgrades, setShowUpgrades] = useState(false);
+  const [showQuests, setShowQuests] = useState(false);
+  const [showCheatTerminal, setShowCheatTerminal] = useState(false);
+  const [upgradeCount, setUpgradeCount] = useState(0);
+  const [streak, setStreak] = useState(0);
+  const [totalRolls, setTotalRolls] = useState(0);
+  const [totalWins, setTotalWins] = useState(0);
+  const [hasWonFirstBet, setHasWonFirstBet] = useState(false); // Keep for now, simpler for quest/tutorial unlock
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [currentUser, setCurrentUser] = useState("");
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [achievements, setAchievements] = useState(ACHIEVEMENTS);
+  const [showResultsHistory, setShowResultsHistory] = useState(false);
+  const [allResults, setAllResults] = useState<string[]>([]);
+  const [unlockedChips, setUnlockedChips] = useState<number[]>([5, 10]); // Start with basic chips
+
+  // Quest state (Keep as is for now)
+  const [quests, setQuests] = useState<Quest[]>([
+    {
+      id: 'pass-line-master',
+      name: 'Pass Line Master',
+      description: 'Win 3 Pass Line bets',
+      goal: 3,
+      progress: 0,
+      completed: false,
+      reward: 'Unlock 6 and 8 Place Bets',
+      unlocked: false, // Will be unlocked after first Pass Line win
+      unlockTutorial: 'first-win'
+    },
+    {
+      id: 'place-bet-master',
+      name: 'Place Bet Master',
+      description: 'Win 3 Place bets to unlock the Field bet',
+      goal: 3,
+      progress: 0,
+      completed: false,
+      reward: 'Unlock Field Bet',
+      unlocked: false, // Unlocked after completing Pass Line Master
+      unlockTutorial: 'place-bets-unlocked'
+    },
+    {
+      id: 'field-bet-master',
+      name: 'Field Bet Master',
+      description: 'Win 3 Field bets',
+      goal: 3,
+      progress: 0,
+      completed: false,
+      reward: 'Unlock all Place Bets in the Upgrade menu',
+      unlocked: false, // Unlocked after completing Place Bet Master
+      unlockTutorial: 'field-bets-unlocked'
+    },
+    {
+      id: 'place-bet-collector',
+      name: 'Place Bet Collector',
+      description: 'Unlock all Place bets in the Upgrade menu',
+      goal: 6,
+      progress: 0,
+      completed: false,
+      reward: 'Access to more betting options',
+      unlocked: false, // Unlocked after completing Field Bet Master
+      unlockTutorial: 'upgrade-menu-unlocked'
+    },
+    {
+      id: 'place-bet-expert',
+      name: 'Place Bet Expert',
+      description: 'Win a Place bet on each number (4, 5, 6, 8, 9, 10)',
+      goal: 6,
+      progress: 0, // Progress now derived from placeBetExpertWins.size
+      completed: false,
+      reward: 'Unlock Come Bet',
+      unlocked: false, // Unlocked after completing Place Bet Collector
+      unlockTutorial: 'place-bet-statistics'
+    },
+    {
+      id: 'come-bet-master',
+      name: 'Come Bet Master',
+      description: 'Win 3 Come bets',
+      goal: 3,
+      progress: 0,
+      completed: false,
+      reward: 'Unlock Don\'t Come Bet',
+      unlocked: false, // Unlocked after completing Place Bet Expert
+      unlockTutorial: 'come-bets'
+    }
+  ]);
+
+  // Additional state for UI overlays
+  const [showStatsOverlay, setShowStatsOverlay] = useState(false); // Stats overlay state
+
+  // --- Refactored Achievement Progress Calculation ---
+  const achievementProgressCalculators: { [key: string]: () => number } = {
+    'rolls_100': () => Math.min(totalRolls / 100, 1),
+    'streak_3': () => Math.min(streak / 3, 1),
+    'streak_10': () => Math.min(streak / 10, 1),
+    'bankroll_5000': () => Math.min(bankroll / 5000, 1),
+    'bankroll_10000': () => Math.min(bankroll / 10000, 1),
+    'upgrade_5': () => Math.min(upgradeCount / 5, 1),
+    // Add calculators for other achievements with progress bars here
+  };
+
+  const getAchievementProgress = (id: string): number => {
+    const calculator = achievementProgressCalculators[id];
+    return calculator ? calculator() : (achievements.find(a => a.id === id)?.unlocked ? 1 : 0); // Default to 1 if unlocked, 0 otherwise
+  };
+  // --- End Refactored Achievement Progress ---
+
+  // Set up timer for passive income - Removed progress bar logic
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setBankroll(prev => prev + passiveIncome);
+      addResult(`+ $${passiveIncome.toFixed(2)} passive income`);
+    }, TickSpeed);
+
+    return () => clearInterval(timer); // Clean up timer
+  }, [passiveIncome]); // Rerun effect only if passiveIncome rate changes
+
+  // Function to add a result to the results list
+  const addResult = (result: string) => {
+    setResults(prev => [result, ...prev].slice(0, 5));
+    setAllResults(prev => [result, ...prev].slice(0, 100));
+  };
+
+  // Function to place a bet (Keep as is)
+  const placeBet = (betType: string) => {
+    if (selectedChip > bankroll) {
+      addResult("Not enough funds!");
+      return;
+    }
+    if (betType === 'pass-line' && point !== null) {
+      addResult('Cannot place Pass Line bet after point is established');
+      return;
+    }
+    setActiveBets(prevBets => {
+      const newBets = { ...prevBets };
+      newBets[betType] = (newBets[betType] || 0) + selectedChip;
+      return newBets;
+    });
+    setBankroll(prevBankroll => prevBankroll - selectedChip);
+    addResult(`Placed $${selectedChip} on ${betType.replace(/-/g, ' ')}`);
+  };
+
+  // Function to remove a bet (Keep as is)
+  const removeBet = (betType: string) => {
+    if (!activeBets[betType]) return;
+    const canRemoveBet = (betType: string) => {
+      if (betType === 'pass-line') return point === null;
+      if (betType.startsWith('place-')) return true;
+      if (betType === 'field') return false;
+      return true; // Default allow
+    };
+    if (canRemoveBet(betType)) {
+      setBankroll(prev => prev + activeBets[betType]);
+      setActiveBets(prev => {
+        const newBets = { ...prev };
+        delete newBets[betType];
+        return newBets;
+      });
+      addResult(`Removed ${betType.replace(/-/g, ' ')} bet`);
+    } else {
+      addResult(`Cannot remove ${betType.replace(/-/g, ' ')} bet at this time`);
+    }
+  };
+
+  // Function to get total bet amount (Keep as is)
+  const getTotalBets = () => {
+    return Object.values(activeBets).reduce((sum, bet) => sum + bet, 0);
+  };
+
+  // --- Refactored Win Handling ---
+  // Standardized: Expects PROFIT only, updates bankroll by (bet + profit)
+  const handleStandardWin = (betType: string, betAmount: number, profit: number) => {
+    addResult(`Won $${profit.toFixed(2)} on ${betType.replace(/-/g, ' ')}`);
+    setBankroll(prev => prev + betAmount + profit); // Return original bet + profit
+    setStreak(prev => prev + 1);
+    setTotalWins(prev => prev + 1);
+    setTotalWinnings(prev => prev + profit); // Add PROFIT to total winnings
+
+    // First win tracking & quest unlock
+    if (!hasWonFirstBet) {
+      setHasWonFirstBet(true);
+      const passLineMaster = quests.find(q => q.id === 'pass-line-master');
+      if (!passLineMaster?.unlocked) {
+        setQuests(prevQuests => prevQuests.map(quest =>
+          quest.id === 'pass-line-master' ? { ...quest, unlocked: true } : quest
+        ));
+        addResult(`🏆 Quest unlocked: Pass Line Master!`);
+        if (!unlockedTutorials.includes('first-win')) {
+          setUnlockedTutorials(prev => [...prev, 'first-win']);
+          setCurrentQuestTutorial('first-win');
+          setShowQuestTutorial(true);
+        }
+      }
+    }
+  };
+
+  // Specific handler for Pass Line (wins even money, profit = betAmount)
+  const handlePassLineWin = (betAmount: number, messagePrefix: string = "") => {
+    const profit = betAmount;
+    addResult(`${messagePrefix}Won $${profit.toFixed(2)} on Pass Line`);
+    setBankroll(prev => prev + betAmount + profit); // Return original bet + profit
+    setStreak(prev => prev + 1);
+    setTotalWins(prev => prev + 1);
+    setTotalWinnings(prev => prev + profit); // Add PROFIT to total winnings
+    updateQuestProgress('pass-line-master', 1);
+
+    // First win tracking & quest unlock (duplicated slightly, but ok for now)
+    if (!hasWonFirstBet) {
+      setHasWonFirstBet(true);
+      const passLineMaster = quests.find(q => q.id === 'pass-line-master');
+      if (!passLineMaster?.unlocked) {
+        setQuests(prevQuests => prevQuests.map(quest =>
+          quest.id === 'pass-line-master' ? { ...quest, unlocked: true } : quest
+        ));
+        addResult(`🏆 Quest unlocked: Pass Line Master!`);
+        if (!unlockedTutorials.includes('first-win')) {
+          setUnlockedTutorials(prev => [...prev, 'first-win']);
+          setCurrentQuestTutorial('first-win');
+          setShowQuestTutorial(true);
+        }
+      }
+    }
+  };
+
+  // Handle Loss
+  const handleLoss = (betType: string, betAmount: number, messageSuffix: string = "") => {
+    addResult(`Lost $${betAmount.toFixed(2)} on ${betType.replace(/-/g, ' ')}${messageSuffix}`);
+    setStreak(0);
+    // Bankroll already reduced when bet was placed
+    // Remove the losing bet from active bets
+    setActiveBets(prev => {
+      const newBets = { ...prev };
+      delete newBets[betType];
+      return newBets;
+    });
+  };
+  // --- End Refactored Win/Loss Handling ---
+
+
+  // Update passive income when total winnings change: $1 + (1% of Total Profit)
+  useEffect(() => {
+    const newPassiveIncome = 1 + (totalWinnings * 0.01);
+    // Ensure passive income doesn't go below $1 if totalWinnings is somehow negative, though it shouldn't be.
+    setPassiveIncome(Math.max(1, newPassiveIncome));
+  }, [totalWinnings]);
+
+  // Function to update quest progress - Simplified: only updates progress/completion status
+  const updateQuestProgress = (questId: string, progressIncrement: number, winningNumber?: number) => {
+    setQuests(prevQuests => prevQuests.map(quest => {
+      if (quest.id === questId && quest.unlocked && !quest.completed) {
+        // Handle place-bet-expert separately using its state
+        if (questId === 'place-bet-expert') {
+          if (winningNumber && !placeBetExpertWins.has(winningNumber)) {
+            setPlaceBetExpertWins(prevSet => new Set(prevSet).add(winningNumber));
+            // Actual progress update for this quest happens in the useEffect below
+          }
+          return quest; // Return early, useEffect handles the rest
+        }
+
+        // Standard progress update
+        const newProgress = quest.progress + progressIncrement;
+        const completed = newProgress >= quest.goal;
+
+        // Only update progress and completion status here
+        // Side effects (rewards, unlocks) are handled in the useEffect below
+        return { ...quest, progress: newProgress, completed };
+      }
+      return quest;
+    }));
+  };
+
+  // Custom hook to get the previous value of a prop/state
+  function usePrevious<T>(value: T): T | undefined {
+    const ref = useRef<T>();
+    useEffect(() => {
+      ref.current = value;
+    });
+    return ref.current;
+  }
+
+  // Effect to handle side effects of quest completion (rewards, unlocks)
+  const prevQuests = usePrevious(quests);
+  useEffect(() => {
+    if (!prevQuests) return; // Skip first render
+
+    quests.forEach((currentQuest, index) => {
+      const previousQuest = prevQuests[index];
+      // Check if the quest *just* became completed in this update
+      if (currentQuest.completed && !previousQuest.completed) {
+        // --- Quest Completion Side Effects ---
+        const questId = currentQuest.id;
+        const questName = currentQuest.name;
+
+        // 1. Give bankroll reward
+        const reward = 100; // Or fetch from quest definition
+        setBankroll(prev => prev + reward);
+        addResult(`💰 Received $${reward} for completing quest: ${questName}!`);
+
+        // 2. Trigger unlocks (bets, next quests) and tutorials
+        let rewardMsg = "";
+        switch (questId) {
+          case 'pass-line-master':
+            setUnlockedBets(prev => ({ ...prev, 'place-6': true, 'place-8': true }));
+            setQuests(prevQ => prevQ.map(q => q.id === 'place-bet-master' ? { ...q, unlocked: true } : q)); // Unlock next quest
+            rewardMsg = "Unlocked Place bets for 6 and 8.";
+            if (!unlockedTutorials.includes('place-bets-unlocked')) {
+              setUnlockedTutorials(prev => [...prev, 'place-bets-unlocked']);
+              setCurrentQuestTutorial('place-bets-unlocked'); setShowQuestTutorial(true);
+            }
+            break;
+          case 'place-bet-master':
+            setUnlockedBets(prev => ({ ...prev, 'field': true }));
+            setQuests(prevQ => prevQ.map(q => q.id === 'field-bet-master' ? { ...q, unlocked: true } : q));
+            rewardMsg = "Unlocked Field bet.";
+            if (!unlockedTutorials.includes('field-bets-unlocked')) {
+              setUnlockedTutorials(prev => [...prev, 'field-bets-unlocked']);
+              setCurrentQuestTutorial('field-bets-unlocked'); setShowQuestTutorial(true);
+            }
+            break;
+          case 'field-bet-master':
+            setQuests(prevQ => prevQ.map(q => q.id === 'place-bet-collector' ? { ...q, unlocked: true } : q));
+            rewardMsg = "Upgrade Menu access granted.";
+            if (!unlockedTutorials.includes('upgrade-menu-unlocked')) {
+              setUnlockedTutorials(prev => [...prev, 'upgrade-menu-unlocked']);
+              setCurrentQuestTutorial('upgrade-menu-unlocked'); setShowQuestTutorial(true);
+            }
+            break;
+          case 'place-bet-collector':
+            setUnlockedBets(prev => ({ ...prev, 'place-4': true, 'place-5': true, 'place-9': true, 'place-10': true }));
+            setQuests(prevQ => prevQ.map(q => q.id === 'place-bet-expert' ? { ...q, unlocked: true } : q));
+            rewardMsg = "All Place bets unlocked.";
+            if (!unlockedTutorials.includes('place-bet-statistics')) {
+              setUnlockedTutorials(prev => [...prev, 'place-bet-statistics']);
+              setCurrentQuestTutorial('place-bet-statistics'); setShowQuestTutorial(true);
+            }
+            break;
+          case 'place-bet-expert':
+            setUnlockedBets(prev => ({ ...prev, 'come': true }));
+            setQuests(prevQ => prevQ.map(q => q.id === 'come-bet-master' ? { ...q, unlocked: true } : q));
+            rewardMsg = "Come bet unlocked.";
+            if (!unlockedTutorials.includes('come-bets')) {
+              setUnlockedTutorials(prev => [...prev, 'come-bets']);
+              setCurrentQuestTutorial('come-bets'); setShowQuestTutorial(true);
+            }
+            break;
+          case 'come-bet-master':
+            setUnlockedBets(prev => ({ ...prev, 'dont-come': true }));
+            // No next quest unlock defined here
+            rewardMsg = "Don't Come bet unlocked.";
+            if (!unlockedTutorials.includes('dont-come-bets')) {
+              setUnlockedTutorials(prev => [...prev, 'dont-come-bets']);
+              setCurrentQuestTutorial('dont-come-bets'); setShowQuestTutorial(true);
+            }
+            break;
+        }
+        if (rewardMsg) {
+          addResult(`🎁 Quest Reward: ${rewardMsg}`);
+        }
+        // --- End Quest Completion Side Effects ---
+      }
+    });
+
+    // Handle 'place-bet-expert' progress update separately as it depends on the Set size
+    const expertQuestId = 'place-bet-expert';
+    const currentExpertQuest = quests.find(q => q.id === expertQuestId);
+    const prevExpertQuest = prevQuests?.find(q => q.id === expertQuestId);
+    if (currentExpertQuest && currentExpertQuest.unlocked) {
+      const newProgress = placeBetExpertWins.size;
+      // Update progress in state if it changed and quest is not already completed
+      if (newProgress !== currentExpertQuest.progress && !currentExpertQuest.completed) {
+        setQuests(prevQuests => prevQuests.map(q =>
+          q.id === expertQuestId ? { ...q, progress: newProgress } : q
+        ));
+      }
+      // Check for completion based on the *new* progress, comparing against *previous* completion status
+      const goal = currentExpertQuest.goal;
+      const justCompleted = newProgress >= goal && !prevExpertQuest?.completed;
+      if (justCompleted) {
+         // Trigger completion side effects (handled by the loop above)
+         // We might need to re-trigger the effect or ensure the loop runs after this state update.
+         // For simplicity, we'll rely on the main loop catching the completion on the *next* render cycle.
+         // A more robust solution might involve triggering side effects directly here too.
+      }
+    }
+
+  }, [quests, prevQuests, placeBetExpertWins, unlockedTutorials]); // Dependencies
+
+
+  // Handle tutorial toggle (Keep as is)
+  const toggleTutorialSelector = () => setShowTutorialSelector(!showTutorialSelector);
+
+  // Handle login/logout (Keep as is)
+  const handleLogin = (username: string, isAdmin: boolean) => { setIsLoggedIn(true); setCurrentUser(username); setIsAdmin(isAdmin); };
+  const handleLogout = () => { setIsLoggedIn(false); setCurrentUser(""); setIsAdmin(false); };
+
+  // Handle save state (Keep as is - placeholder)
+  const handleSaveState = () => {
+    const gameState = { bankroll, passiveIncome, totalRolls, totalWins, totalWinnings, streak, unlockedBets,
+      achievements: achievements.map(a => ({ id: a.id, unlocked: a.unlocked })),
+      quests: quests.map(q => ({ id: q.id, progress: q.id === 'place-bet-expert' ? placeBetExpertWins.size : q.progress, completed: q.completed, unlocked: q.unlocked })) // Save size for place-bet-expert
+    };
+    console.log("Saving game state:", gameState); addResult("Game state saved!");
+  };
+
+  // Share game (Keep as is)
+  const shareGame = () => { navigator.clipboard.writeText("Check out Idle Craps! I've won $" + (bankroll - 100).toFixed(2) + " so far. Play at https://idlecraps.com"); addResult("Game link copied!"); };
+
+  // Unlock bet and chip functions for Upgrades
+  const unlockBet = (betType: string) => {
+    const cost = BET_UNLOCK_COSTS[betType as keyof typeof BET_UNLOCK_COSTS];
+    if (cost && bankroll >= cost) {
+      setBankroll(prev => prev - cost);
+      setUnlockedBets(prev => ({ ...prev, [betType]: true }));
+      setUpgradeCount(prev => prev + 1);
+      addResult(`Unlocked ${betType.replace(/-/g, ' ')} bet for $${cost}`);
+      // Advance place-bet-collector quest if applicable
+      if (betType.startsWith('place-')) {
+        updateQuestProgress('place-bet-collector', 1);
+      }
+    } else {
+      addResult("Not enough funds to unlock this bet!");
+    }
+  };
+
+  const unlockChip = (chipValue: number) => {
+    const cost = CHIP_UNLOCK_COSTS[chipValue as unknown as keyof typeof CHIP_UNLOCK_COSTS];
+    if (cost && bankroll >= cost) {
+      setBankroll(prev => prev - cost);
+      setUnlockedChips(prev => [...prev, chipValue]);
+      addResult(`Unlocked $${chipValue} chip for $${cost}`);
+    } else {
+      addResult("Not enough funds to unlock this chip!");
+    }
+  };
+
+  // --- Refactored Roll Resolution Logic ---
+  const resolveRollOutcome = (total: number) => {
+    let nextPoint = point;
+    let betsToRemove: string[] = [];
+    let betsToKeep: string[] = []; // Bets that won/pushed but stay on table
+
+    // --- Come Out Roll ---
+    if (point === null) {
+      if (total === 7 || total === 11) {
+        // Pass Line wins
+        if (activeBets['pass-line']) {
+          handlePassLineWin(activeBets['pass-line']);
+          betsToRemove.push('pass-line'); // Pass line bet comes down after win on come out
+        }
+        // Don't Pass loses
+        if (activeBets['dont-pass']) {
+          handleLoss('dont-pass', activeBets['dont-pass']);
+          // betsToRemove already handles this via handleLoss
+        }
+        nextPoint = null; // Stays off
+      } else if (total === 2 || total === 3 || total === 12) {
+        // Pass Line loses
+        if (activeBets['pass-line']) {
+          handleLoss('pass-line', activeBets['pass-line'], ' (Craps)');
+          // betsToRemove already handles this via handleLoss
+        }
+        // Don't Pass wins (1:1) or pushes (12)
+        if (activeBets['dont-pass']) {
+          if (total === 12) {
+            addResult("Push on Don't Pass (12)");
+            setBankroll(prev => prev + activeBets['dont-pass']); // Return bet
+            betsToKeep.push('dont-pass'); // Bet stays for next come out
+          } else {
+            const profit = activeBets['dont-pass']; // 1:1 payout
+            handleStandardWin('dont-pass', activeBets['dont-pass'], profit);
+            betsToKeep.push('dont-pass'); // Bet stays for next come out
+          }
+        }
+        nextPoint = null; // Stays off
+      } else {
+        // Point Established
+        nextPoint = total;
+        addResult(`Point set to ${total}`);
+        // Bets stay on table
+        if (activeBets['pass-line']) betsToKeep.push('pass-line');
+        if (activeBets['dont-pass']) betsToKeep.push('dont-pass');
+      }
+    }
+    // --- Point Phase ---
+    else {
+      if (total === point) {
+        // Point Hit!
+        nextPoint = null; // Point goes off
+        // Pass Line wins
+        if (activeBets['pass-line']) {
+          handlePassLineWin(activeBets['pass-line'], `Made point ${point}! `);
+          betsToRemove.push('pass-line'); // Bet comes down
+        }
+        // Don't Pass loses
+        if (activeBets['dont-pass']) {
+          handleLoss('dont-pass', activeBets['dont-pass']);
+          // betsToRemove handled by handleLoss
+        }
+        // Place Bet on the point wins
+        const placeBetType = `place-${point}`;
+        if (activeBets[placeBetType]) {
+          const betAmount = activeBets[placeBetType];
+          const payoutMultiplier = PLACE_BET_PAYOUTS[point];
+          const profit = Math.floor(betAmount * payoutMultiplier * 100) / 100;
+          handleStandardWin(placeBetType, betAmount, profit);
+          updateQuestProgress('place-bet-master', 1);
+          updateQuestProgress('place-bet-expert', 1, point); // Pass winning number
+          betsToKeep.push(placeBetType); // Place bets stay ON unless turned off
+        }
+        // Other Place Bets remain
+        Object.keys(activeBets)
+          .filter(bet => bet.startsWith('place-') && bet !== placeBetType)
+          .forEach(bet => betsToKeep.push(bet));
+
+      } else if (total === 7) {
+        // Seven Out!
+        nextPoint = null; // Point goes off
+        addResult(`Seven out!`);
+        // Pass Line loses
+        if (activeBets['pass-line']) {
+          handleLoss('pass-line', activeBets['pass-line']);
+        }
+        // Don't Pass wins
+        if (activeBets['dont-pass']) {
+          const profit = activeBets['dont-pass']; // 1:1 payout
+          handleStandardWin('dont-pass', activeBets['dont-pass'], profit);
+          betsToRemove.push('dont-pass'); // Bet comes down
+        }
+        // All Place Bets lose
+        Object.keys(activeBets)
+          .filter(bet => bet.startsWith('place-'))
+          .forEach(bet => {
+            handleLoss(bet, activeBets[bet]);
+          });
+        // betsToRemove handled by handleLoss
+
+      } else {
+        // Roll is not point or 7 - Place bets might win/lose
+        nextPoint = point; // Point stays ON
+        const placeBetType = `place-${total}`;
+        if (activeBets[placeBetType]) {
+           // Place bet on the rolled number wins
+           const betAmount = activeBets[placeBetType];
+           const payoutMultiplier = PLACE_BET_PAYOUTS[total];
+           const profit = Math.floor(betAmount * payoutMultiplier * 100) / 100;
+           handleStandardWin(placeBetType, betAmount, profit);
+           updateQuestProgress('place-bet-master', 1);
+           updateQuestProgress('place-bet-expert', 1, total); // Pass winning number
+           betsToKeep.push(placeBetType); // Place bets stay ON
+        }
+         // Keep other Place bets, Pass Line, Don't Pass
+         Object.keys(activeBets)
+           .filter(bet => bet !== placeBetType && (bet.startsWith('place-') || bet === 'pass-line' || bet === 'dont-pass'))
+           .forEach(bet => betsToKeep.push(bet));
+      }
+    }
+
+    // --- Handle Field Bet (Always resolved) ---
+    if (activeBets['field']) {
+      const betAmount = activeBets['field'];
+      if (FIELD_BET_PAYOUTS[total] !== undefined) {
+        const payoutMultiplier = FIELD_BET_PAYOUTS[total];
+        const profit = betAmount * payoutMultiplier;
+        const oddsMsg = payoutMultiplier > 1 ? ` (${payoutMultiplier}:1 on ${total})` : '';
+        addResult(`Won $${profit.toFixed(2)} on Field${oddsMsg}`);
+        setBankroll(prev => prev + betAmount + profit); // Return bet + profit
+        setStreak(prev => prev + 1);
+        setTotalWins(prev => prev + 1);
+        setTotalWinnings(prev => prev + profit);
+        updateQuestProgress('field-bet-master', 1);
+        // First win check (could be refactored into handleStandardWin later)
+        if (!hasWonFirstBet) setHasWonFirstBet(true); // Simplified first win check
+      } else {
+        // Field loses on 5, 6, 7, 8
+        addResult(`Lost $${betAmount.toFixed(2)} on Field`);
+        setStreak(0);
+        // Bankroll already reduced
+      }
+      betsToRemove.push('field'); // Field is always a one-roll bet
+    }
+
+    // --- Update State based on resolution ---
+    setPoint(nextPoint);
+
+    // Update Active Bets: Remove losers/resolved winners, keep others
+    setActiveBets(prev => {
+        const newBets = { ...prev };
+        // First, remove all bets marked for removal
+        betsToRemove.forEach(bet => delete newBets[bet]);
+        // Then, ensure bets marked to keep are still present (handles cases where handleLoss might have removed them)
+        // This is a bit belt-and-suspenders, might simplify later.
+        betsToKeep.forEach(bet => {
+            if (prev[bet] && !newBets[bet]) { // If it was present before but removed by handleLoss, add it back
+               newBets[bet] = prev[bet];
+            }
+        });
+        // Filter out any potential zero/undefined bets just in case
+        Object.keys(newBets).forEach(key => {
+            if (!newBets[key] || newBets[key] <= 0) {
+                delete newBets[key];
+            }
+        });
+        return newBets;
+    });
+  };
+
+
+  // Function to roll the dice - Uses resolveRollOutcome
+  const rollDice = () => {
+    if (isRolling || getTotalBets() === 0) return;
+
+    setIsRolling(true);
+    setTotalRolls(prev => prev + 1);
+
+    const die1Duration = 0.5 + Math.random() * 0.5;
+    const die2Duration = 0.5 + Math.random() * 0.5;
+    animationDurations.current = [die1Duration, die2Duration];
+
+    setTimeout(() => {
+      const die1 = Math.floor(Math.random() * 6) + 1;
+      const die2 = Math.floor(Math.random() * 6) + 1;
+      const total = die1 + die2;
+
+      setDice([die1, die2]);
+      setIsRolling(false);
+      addResult(`Rolled ${die1} + ${die2} = ${total}`);
+
+      // Resolve the outcome using the refactored function
+      resolveRollOutcome(total);
+
+    }, Math.max(...animationDurations.current) * 1000);
+  };
+
+  // Cheat function to set dice - Uses resolveRollOutcome
+  const handleSetDice = (die1: number, die2: number) => {
+    if (isRolling) return; // Prevent overlap if already rolling
+
+    const total = die1 + die2;
+    setDice([die1, die2]);
+    addResult(`🧪 CHEAT: Dice set to ${die1}-${die2} (${total})`);
+
+    // Resolve the outcome using the refactored function
+    resolveRollOutcome(total);
+  };
+  // --- End Refactored Roll Resolution Logic ---
+
+
+  // Add the cheat functions (Keep as is)
+  const addCheatMoney = (amount: number) => { setBankroll(prev => prev + amount); addResult(`🧪 CHEAT: Added $${amount}!`); };
+  const handleUnlockAll = () => {
+    setUnlockedBets({
+      'pass-line': true, 'dont-pass': true, 'field': true,
+      'place-4': true, 'place-5': true, 'place-6': true, 'place-8': true, 'place-9': true, 'place-10': true,
+      'come': true, 'dont-come': true
+    });
+    addResult("🧪 CHEAT: Unlocked all bets!");
+   };
+
+  // Simple quest functions (Keep as is for now, but completion logic might need review)
+  // Refactored Cheat Function: completeQuest - Relies on useEffect for side effects
+  const completeQuest = (questId: string) => {
+    if (questId === 'all') {
+      setQuests(prevQuests => prevQuests.map(quest =>
+        quest.unlocked && !quest.completed
+          ? { ...quest, progress: quest.goal, completed: true }
+          : quest
+      ));
+      addResult(`🧪 CHEAT: Triggered completion for all unlocked quests! (Rewards/unlocks handled by effect)`);
+      return;
+    }
+
+    setQuests(prevQuests => prevQuests.map(quest => {
+      if (quest.id === questId && quest.unlocked && !quest.completed) {
+        // Directly mark as completed. The useEffect will handle side effects.
+        return { ...quest, progress: quest.goal, completed: true };
+      }
+      return quest;
+    }));
+    addResult(`🧪 CHEAT: Triggered completion for quest: ${questId}! (Rewards/unlocks handled by effect)`);
+  };
+
+  // Refactored Cheat Function: unlockQuest (no side effects needed here)
+  const unlockQuest = (questId: string) => {
+     if (questId === 'all') {
+       setQuests(prevQuests => prevQuests.map(quest => !quest.unlocked ? { ...quest, unlocked: true } : quest));
+       addResult(`🧪 CHEAT: Unlocked all quests!`);
+     }
+  };
+}
+
+export default App;

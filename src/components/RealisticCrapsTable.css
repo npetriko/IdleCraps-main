@@ -1,0 +1,704 @@
+/* RealisticCrapsTable.css */
+.realistic-craps-table {
+  background-color: #0a8026; /* Darker green color for the table */
+  border-radius: 16px;
+  width: 100%;
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 8px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  border: 2px solid white;
+  overflow: hidden;
+  position: relative;
+  aspect-ratio: 16 / 9; /* Maintain the table's aspect ratio */
+}
+
+.table-layout {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  display: grid;
+  grid-template-rows: 27% 25% 18% 30%;
+  grid-template-columns: 15% 85%;
+}
+
+/* Table sections */
+.section {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 2px solid white;
+}
+
+.pass-line-section {
+  grid-row: 4;
+  grid-column: 1 / 3;
+  background-color: #0a8026;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+.dont-pass-section {
+  grid-row: 3;
+  grid-column: 2;
+  background-color: #0a8026;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+.field-section {
+  grid-row: 2 / 4;
+  grid-column: 1;
+  background-color: #0a8026;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  position: relative;
+  overflow: hidden;
+  padding: 5px;
+  box-sizing: border-box;
+  column-gap: 5px;
+}
+
+.come-section {
+  grid-row: 2;
+  grid-column: 2;
+  background-color: #0a8026;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+.numbers-section {
+  grid-row: 1;
+  grid-column: 2;
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  background-color: #0a8026;
+}
+
+.dont-come-section {
+  grid-row: 1;
+  grid-column: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: #0a8026;
+  font-size: 0.8em;
+}
+
+/* Number boxes */
+.number-box {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 2px solid white;
+  position: relative;
+  font-weight: bold;
+  font-size: 3em;
+  color: yellow;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.number-box span {
+  position: relative;
+  z-index: 3; /* Ensure numbers are above lock icons */
+  text-shadow: 0 0 5px rgba(0, 0, 0, 0.7); /* Add text shadow to make numbers stand out */
+}
+
+.number-box:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.number-box.active {
+  box-shadow: inset 0 0 15px rgba(255, 255, 0, 0.7);
+}
+
+.number-4, .number-10 {
+  background-color: #00a026;
+}
+
+.number-5, .number-9 {
+  background-color: #00a026;
+}
+
+.number-6, .number-8 {
+  background-color: #00a026;
+}
+
+/* ON/OFF puck */
+.on-puck, .off-puck {
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 0.4em;
+  font-weight: bold;
+  top: 5px;
+  right: 5px;
+  border: 2px solid black;
+  z-index: 2;
+}
+
+.on-puck {
+  background-color: white;
+  color: black;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  animation: puckGlow 2s infinite alternate;
+}
+
+.off-puck {
+  background-color: black;
+  color: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.on-puck::after {
+  content: 'ON';
+  font-size: 1.1em;
+  letter-spacing: 0.5px;
+}
+
+.off-puck::after {
+  content: 'OFF';
+  font-size: 1.1em;
+  letter-spacing: 0.5px;
+}
+
+/* Animation for the ON puck */
+@keyframes puckGlow {
+  from {
+    box-shadow: 0 0 5px 2px rgba(255, 255, 255, 0.5);
+  }
+  to {
+    box-shadow: 0 0 8px 3px rgba(255, 255, 255, 0.8);
+  }
+}
+
+/* Text styles */
+.section-text {
+  color: white;
+  font-weight: bold;
+  text-align: center;
+}
+
+.pass-line-text {
+  color: white;
+  font-size: 2.5em;
+  font-weight: bold;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.dont-pass-text {
+  color: white;
+  font-size: 2em;
+  font-weight: bold;
+}
+
+.field-text {
+  color: white;
+  font-weight: bold;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
+  writing-mode: vertical-lr;
+  text-orientation: upright;
+  height: 100%;
+  letter-spacing: -1px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-right: 5px;
+  font-size: clamp(0.8em, 2.5vmin, 1.3em);
+}
+
+.come-text {
+  color: #ff0000;
+  font-size: 3em;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.dont-come-text {
+  color: white;
+  font-size: 1.5em;
+  font-weight: bold;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  transform: rotate(180deg);
+}
+
+/* Field circled numbers */
+.field-numbers {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  padding: 5% 0;
+}
+
+.field-number {
+  color: yellow;
+  font-weight: bold;
+  width: 100%;
+  height: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
+  font-size: clamp(0.6em, 1.8vmin, 0.9em);
+  position: relative;
+}
+
+.payout-label {
+  font-size: 0.6em;
+  position: absolute;
+  right: -20px;
+  top: 0;
+  color: #4CAF50;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 1px 3px;
+  border-radius: 3px;
+}
+
+.circled-number {
+  border: 1px solid yellow;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 1 / 1;
+  width: clamp(18px, 5vmin, 25px);
+  height: clamp(18px, 5vmin, 25px);
+  min-width: auto;
+  min-height: auto;
+}
+
+/* Dice icons */
+.dice-icon {
+  font-size: 1.5em;
+  margin: 0 5px;
+}
+
+/* Bet amount displays */
+.bet-amount {
+  position: absolute;
+  bottom: 5px;
+  right: 5px;
+  background-color: rgba(0, 0, 0, 0.5);
+  color: #4CAF50;
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-size: 0.8em;
+  font-weight: bold;
+}
+
+/* For locked bets */
+.locked-bet {
+  position: relative;
+  pointer-events: none;
+  opacity: 0.8; /* Increased opacity so numbers are more visible */
+  background-color: rgba(0, 0, 0, 0.3); /* Darkened background to show it's locked */
+}
+
+.locked-bet span {
+  opacity: 1; /* Ensure number text is fully visible */
+}
+
+.lock-icon {
+  position: absolute;
+  bottom: 5px;
+  left: 5px;
+  font-size: 1em;
+  color: white;
+  background-color: rgba(0, 0, 0, 0.5);
+  border-radius: 50%;
+  padding: 3px;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2; /* Lower z-index than the number */
+}
+
+/* Special case for number boxes */
+.number-box .lock-icon {
+  font-size: 0.8em;
+  width: 16px;
+  height: 16px;
+  opacity: 0.8;
+  bottom: 5px;
+  left: 5px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+/* Style the pass line odds button to match the existing one */
+.pass-line-odds-container {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 8px;
+  padding: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.pass-line-odds-bet {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: white;
+}
+
+.pass-line-odds-bet:hover {
+  transform: translateY(-2px);
+}
+
+.pass-line-odds-bet .bet-label {
+  font-size: 0.9rem;
+  margin-bottom: 4px;
+}
+
+.pass-line-odds-bet .payout-info {
+  font-size: 0.8rem;
+  color: #ffeb3b;
+  margin-top: 4px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .realistic-craps-table {
+    aspect-ratio: 4 / 3;
+  }
+  
+  .pass-line-text, .come-text {
+    font-size: 1.8em;
+  }
+  
+  .dont-pass-text, .dont-come-text {
+    font-size: 1.2em;
+  }
+  
+  .number-box {
+    font-size: 2em;
+  }
+  
+  .on-puck {
+    width: 30px;
+    height: 30px;
+    font-size: 0.35em;
+  }
+}
+
+@media (max-width: 480px) {
+  .realistic-craps-table {
+    aspect-ratio: 3 / 4;
+  }
+  
+  .table-layout {
+    grid-template-rows: 20% 25% 20% 35%;
+  }
+  
+  .pass-line-text, .come-text {
+    font-size: 1.4em;
+  }
+  
+  .dont-pass-text, .dont-come-text {
+    font-size: 1em;
+  }
+  
+  .number-box {
+    font-size: 1.5em;
+  }
+  
+  .on-puck {
+    width: 25px;
+    height: 25px;
+    font-size: 0.3em;
+  }
+}
+
+/* Point status indicator */
+.point-status {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(0, 0, 0, 0.6);
+  color: white;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-weight: bold;
+  font-size: 0.9em;
+  z-index: 10;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+  animation: pulse 2s infinite alternate;
+}
+
+@keyframes pulse {
+  from {
+    opacity: 0.7;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Puck container */
+.puck-container {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  z-index: 10;
+}
+
+.puck-container.hidden {
+  display: none;
+}
+
+.puck-container.visible {
+  display: block;
+}
+
+.field-section .lock-icon {
+  bottom: 5px;
+  left: 5px;
+  transform: none;
+}
+
+.field-section .bet-amount {
+  transform: none;
+  bottom: 5px;
+  right: 5px;
+  top: auto;
+}
+
+/* Make numbers in the field section larger */
+.field-section .field-number {
+  font-size: 0.9em;
+}
+
+.field-section .circled-number {
+  width: 22px;
+  height: 22px;
+  min-width: 22px;
+  min-height: 22px;
+}
+
+/* Add a cursor style for items that have active bets */
+.section[class*="-section"]:has(.bet-amount),
+.number-box:has(.bet-amount),
+.number-box:has(.place-bet-amount),
+.pass-line-odds-container:has(.bet-amount) {
+  cursor: context-menu; /* Show context menu cursor on right-clickable items with active bets */
+}
+
+/* Add a tooltip style for right-clickable elements */
+.section[class*="-section"]:has(.bet-amount)::after,
+.number-box:has(.bet-amount)::after,
+.number-box:has(.place-bet-amount)::after,
+.pass-line-odds-container:has(.bet-amount)::after {
+  content: "Right-click to remove";
+  position: absolute;
+  background-color: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 3px 6px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  opacity: 0;
+  transition: opacity 0.2s;
+  pointer-events: none;
+  z-index: 100;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+
+.section[class*="-section"]:has(.bet-amount):hover::after,
+.number-box:has(.bet-amount):hover::after,
+.number-box:has(.place-bet-amount):hover::after,
+.pass-line-odds-container:has(.bet-amount):hover::after {
+  opacity: 1;
+}
+
+/* Fallback for browsers that don't support :has() */
+.section[class*="-section"] .bet-amount,
+.number-box .bet-amount,
+.number-box .place-bet-amount,
+.pass-line-odds-container .bet-amount {
+  cursor: pointer; /* Make the bet amount clickable */
+}
+
+/* Tooltip alternate positioning for browsers without :has() */
+.bet-amount,
+.place-bet-amount {
+  position: relative;
+}
+
+.bet-amount::after,
+.place-bet-amount::after {
+  content: "Right-click to remove";
+  position: absolute;
+  background-color: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 3px 6px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  opacity: 0;
+  transition: opacity 0.2s;
+  pointer-events: none;
+  z-index: 100;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+
+.bet-amount:hover::after,
+.place-bet-amount:hover::after {
+  opacity: 1;
+}
+
+/* Come Bet Indicator styles */
+.come-bet-indicator {
+  position: absolute;
+  left: 5px;
+  bottom: 5px;
+  background-color: #4CAF50;
+  color: white;
+  padding: 2px 5px;
+  border-radius: 10px;
+  font-size: 0.6em;
+  font-weight: bold;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  z-index: 4;
+  border: 1px dashed #a5d6a7;
+  opacity: 0.9;
+  transition: all 0.2s ease;
+}
+
+.number-box:hover .come-bet-indicator {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+.has-come-bet {
+  border: 1px solid #4CAF50 !important;
+  box-shadow: inset 0 0 8px rgba(76, 175, 80, 0.4);
+}
+
+/* Subtle glow effect for numbers with come bets */
+@keyframes comeGlow {
+  0% { box-shadow: inset 0 0 8px rgba(76, 175, 80, 0.4); }
+  50% { box-shadow: inset 0 0 12px rgba(76, 175, 80, 0.6); }
+  100% { box-shadow: inset 0 0 8px rgba(76, 175, 80, 0.4); }
+}
+
+.has-come-bet {
+  animation: comeGlow 2s infinite;
+}
+
+/* Don't Come Bet Indicator styles */
+.dont-come-bet-indicator {
+  position: absolute;
+  right: 5px;
+  bottom: 5px;
+  background-color: #F44336;
+  color: white;
+  padding: 2px 5px;
+  border-radius: 10px;
+  font-size: 0.6em;
+  font-weight: bold;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  z-index: 4;
+  border: 1px dashed #FFCDD2;
+  opacity: 0.9;
+  transition: all 0.2s ease;
+}
+
+.number-box:hover .dont-come-bet-indicator {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+.has-dont-come-bet {
+  border: 1px solid #F44336 !important;
+  box-shadow: inset 0 0 8px rgba(244, 67, 54, 0.4);
+}
+
+/* Subtle glow effect for numbers with don't come bets */
+@keyframes dontComeGlow {
+  0% { box-shadow: inset 0 0 8px rgba(244, 67, 54, 0.4); }
+  50% { box-shadow: inset 0 0 12px rgba(244, 67, 54, 0.6); }
+  100% { box-shadow: inset 0 0 8px rgba(244, 67, 54, 0.4); }
+}
+
+.has-dont-come-bet {
+  animation: dontComeGlow 2s infinite;
+}
+
+/* Add styling for hover chip value display */
+.hover-chip-value {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: rgba(0, 0, 0, 0.8);
+  color: #FFEB3B;
+  padding: 5px 10px;
+  border-radius: 15px;
+  font-weight: bold;
+  z-index: 1000;
+  border: 2px solid #FFEB3B;
+  box-shadow: 0 0 10px rgba(255, 235, 59, 0.7);
+  font-size: 1.2em;
+  pointer-events: none;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Place Bet Amount - positioned above the place number */
+.place-bet-amount {
+  position: absolute;
+  top: 5px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(0, 0, 0, 0.7);
+  color: #4CAF50;
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-size: 0.8em;
+  font-weight: bold;
+  z-index: 5;
+  white-space: nowrap;
+}
+
+/* Adjust position when point is active to avoid overlap with ON puck */
+.number-box.active .place-bet-amount {
+  top: 50px; /* Move below the ON puck */
+}

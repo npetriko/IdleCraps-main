@@ -1,0 +1,63 @@
+Idle Craps Quest Progression
+
+Pass Line Master
+Unlock Tutorial: First Win
+Description: Win 3 Pass Line bets
+Goal: 3
+Reward: Unlock 6 and 8 Place Bets
+Status: Unlocked after first Pass Line win
+
+
+Place Bet Master
+Unlock Tutorial: Place Bets Unlocked!
+Description: Win 3 Place bets to unlock the Field bet
+Goal: 3
+Reward: Unlock Field Bet
+Status: Unlocked after completing Pass Line Master
+
+
+Field Bet Master
+Unlock Tutorial: Field Bets Unlocked!
+Description: Win 3 Field bets
+Goal: 3
+Reward: Unlock Upgrade Menu
+Status: Unlocked after completing Place Bet Master
+
+
+Place Bet Collector
+Unlock Tutorial: Upgrade Menu Unlocked!
+Description: Unlock all Place bets in the Upgrade menu
+Goal: 6
+Reward: Access to more betting options
+Status: Unlocked after completing Field Bet Master
+
+
+Place Bet Expert
+Unlock tutorial: Place Bet Statistics and Payouts
+Description: Win a Place bet on each number (4, 5, 6, 8, 9, 10)
+Goal: 6
+Reward: Unlock Come Bet
+Status: Unlocked after completing Place Bet Collector
+
+
+Come Bet Master
+Unlock Tutorial: Come Bets
+Description: Win 3 Come bets
+Goal: 3
+Reward: Unlock Don't Come Bet
+Status: Unlocked after completing Place Bet Expert
+
+
+Don't Come Bet Master
+Unlock Tutorial: Don't Come Bets
+Description: Win 3 Don't Come bets
+Goal: 3
+Reward: Unlock Don't Pass Bet
+Status: Unlocked after completing Come Bet Master
+
+Don't Pass Bet Master
+Unlock Tutorial: Don't Pass Bets
+Description: Win 3 Don't Pass Bets
+Goal: 3
+Reward: To Be Determined
+Status: Unlocked after completing Don't Come Bet Master
