@@ -7,6 +7,7 @@ import pgSession from 'connect-pg-simple';
 import bcrypt from 'bcryptjs';
 import dotenv from 'dotenv';
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
 import pool, * as db from './src/db.js';
 
 // Load environment variables
@@ -28,6 +29,7 @@ app.use(cors({
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser(process.env.SESSION_SECRET || 'idle-craps-secret')); // Add cookie parser
 
 // Set up session with PostgreSQL store
 const PgSession = pgSession(session);
@@ -42,10 +44,12 @@ app.use(session({
   cookie: {
     maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
     secure: process.env.NODE_ENV === 'production',
-    sameSite: 'none',  // Changed from 'lax' to 'none' for cross-site requests
-    httpOnly: true,    // Add httpOnly attribute
-    domain: process.env.NODE_ENV === 'production' ? '.idlecraps.com' : 'localhost' // Add domain attribute
-  }
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+    httpOnly: true,
+    domain: process.env.NODE_ENV === 'production' ? 'idlecraps.com' : undefined // Remove leading dot
+  },
+  proxy: true, // Trust the reverse proxy
+  name: 'idlecraps.sid' // Set a specific name for the cookie
 }));
 
 // Debug middleware to log all requests and their session data
@@ -53,6 +57,29 @@ app.use((req, res, next) => {
   console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
   console.log('Request cookies:', req.headers.cookie);
   console.log('Session data:', req.session);
+  
+  // Add a hook to capture and log the response
+  const originalEnd = res.end;
+  res.end = function() {
+    console.log('Response headers:', res.getHeaders());
+    return originalEnd.apply(this, arguments);
+  };
+  
+  next();
+});
+
+// Middleware to ensure session cookie is properly set
+app.use((req, res, next) => {
+  // Ensure the session object exists
+  if (!req.session) {
+    console.error('Session object not available');
+    return next();
+  }
+  
+  // Save the session on every request to ensure the cookie is set
+  req.session.touch();
+  
+  // Continue to the next middleware
   next();
 });
 
@@ -60,12 +87,21 @@ app.use((req, res, next) => {
 const isAuthenticated = (req, res, next) => {
   console.log('Session data:', req.session);
   console.log('Cookies:', req.headers.cookie);
+  console.log('Session ID from cookie:', req.cookies ? req.cookies['idlecraps.sid'] : 'No cookies parsed');
   
-  if (req.session.userId) {
+  // Check if the session exists and has userId or loggedIn flag
+  if (req.session && (req.session.userId || req.session.loggedIn)) {
     console.log('User authenticated:', req.session.userId, req.session.username);
+    
+    // Refresh the session to keep it active
+    req.session.touch();
+    
     next();
   } else {
-    console.log('Authentication failed - no userId in session');
+    console.log('Authentication failed - no valid session data');
+    console.log('Session object exists:', !!req.session);
+    console.log('Session ID:', req.sessionID);
+    
     res.status(401).json({ error: 'Authentication required' });
   }
 };
@@ -141,6 +177,9 @@ app.post('/api/login', async (req, res) => {
     // Save session explicitly
     console.log('Before save - Session data:', req.session);
     
+    // Set a flag to indicate the user is logged in
+    req.session.loggedIn = true;
+    
     req.session.save(err => {
       if (err) {
         console.error('Session save error:', err);
@@ -149,6 +188,28 @@ app.post('/api/login', async (req, res) => {
       
       console.log('After save - Session data:', req.session);
       console.log('Session ID:', req.session.id);
+      
+      // Get the cookie settings
+      const sessionCookie = req.session.cookie;
+      console.log('Session cookie settings:', {
+        maxAge: sessionCookie.maxAge,
+        expires: sessionCookie._expires,
+        httpOnly: sessionCookie.httpOnly,
+        secure: sessionCookie.secure,
+        sameSite: sessionCookie.sameSite,
+        domain: sessionCookie.domain
+      });
+      
+      // Manually set the cookie header as a backup
+      const cookieOptions = [];
+      if (sessionCookie.httpOnly) cookieOptions.push('HttpOnly');
+      if (sessionCookie.secure) cookieOptions.push('Secure');
+      if (sessionCookie.sameSite) cookieOptions.push(`SameSite=${sessionCookie.sameSite}`);
+      if (sessionCookie.domain) cookieOptions.push(`Domain=${sessionCookie.domain}`);
+      if (sessionCookie._expires) cookieOptions.push(`Expires=${sessionCookie._expires.toUTCString()}`);
+      
+      const cookieValue = `${req.sessionID}; Path=/; Max-Age=${sessionCookie.maxAge / 1000}; ${cookieOptions.join('; ')}`;
+      res.setHeader('Set-Cookie', `idlecraps.sid=${cookieValue}`);
       
       res.json({
         message: 'Login successful',

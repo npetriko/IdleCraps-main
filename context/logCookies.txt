@@ -1,0 +1,531 @@
+==> Uploading build...
+==> Uploaded in 5.8s. Compression took 1.7s
+==> Build successful 🎉
+==> Deploying...
+==> Running 'node server.js'
+Server is running on port 3000
+Database connected successfully at: 2025-04-18T17:43:53.787Z
+2025-04-18T17:43:54.677Z - HEAD /
+Request cookies: undefined
+Session data: Session {
+  cookie: {
+    path: '/',
+    _expires: 2025-05-18T17:43:54.677Z,
+    originalMaxAge: 2592000000,
+    httpOnly: true,
+    secure: true,
+    sameSite: 'none',
+    domain: '.idlecraps.com'
+  }
+}
+==> Your service is live 🎉
+2025-04-18T17:44:21.495Z - GET /
+Request cookies: undefined
+Session data: Session {
+  cookie: {
+    path: '/',
+    _expires: 2025-05-18T17:44:21.495Z,
+    originalMaxAge: 2592000000,
+    httpOnly: true,
+    secure: true,
+    sameSite: 'none',
+    domain: '.idlecraps.com'
+  }
+}
+2025-04-18T17:44:21.585Z - GET /assets/index-B_UecVwv.js
+Request cookies: undefined
+Session data: Session {
+  cookie: {
+    path: '/',
+    _expires: 2025-05-18T17:44:21.585Z,
+    originalMaxAge: 2592000000,
+    httpOnly: true,
+    secure: true,
+    sameSite: 'none',
+    domain: '.idlecraps.com'
+  }
+}
+2025-04-18T17:44:21.587Z - GET /assets/index-CHUjvTT3.css
+Request cookies: undefined
+Session data: Session {
+  cookie: {
+    path: '/',
+    _expires: 2025-05-18T17:44:21.587Z,
+    originalMaxAge: 2592000000,
+    httpOnly: true,
+    secure: true,
+    sameSite: 'none',
+    domain: '.idlecraps.com'
+  }
+}
+2025-04-18T17:44:21.685Z - GET /api/user
+Request cookies: undefined
+Session data: Session {
+  cookie: {
+    path: '/',
+    _expires: 2025-05-18T17:44:21.685Z,
+    originalMaxAge: 2592000000,
+    httpOnly: true,
+    secure: true,
+    sameSite: 'none',
+    domain: '.idlecraps.com'
+  }
+}
+/api/user - Session data: Session {
+  cookie: {
+    path: '/',
+    _expires: 2025-05-18T17:44:21.685Z,
+    originalMaxAge: 2592000000,
+    httpOnly: true,
+    secure: true,
+    sameSite: 'none',
+    domain: '.idlecraps.com'
+  }
+}
+/api/user - Cookies: undefined
+/api/user - No userId in session
+2025-04-18T17:44:21.742Z - GET /api/user
+Request cookies: undefined
+Session data: Session {
+  cookie: {
+    path: '/',
+    _expires: 2025-05-18T17:44:21.742Z,
+    originalMaxAge: 2592000000,
+    httpOnly: true,
+    secure: true,
+    sameSite: 'none',
+    domain: '.idlecraps.com'
+  }
+}
+/api/user - Session data: Session {
+  cookie: {
+    path: '/',
+    _expires: 2025-05-18T17:44:21.742Z,
+    originalMaxAge: 2592000000,
+    httpOnly: true,
+    secure: true,
+    sameSite: 'none',
+    domain: '.idlecraps.com'
+  }
+}
+/api/user - Cookies: undefined
+/api/user - No userId in session
+2025-04-18T17:44:21.767Z - GET /vite.svg
+Request cookies: undefined
+Session data: Session {
+  cookie: {
+    path: '/',
+    _expires: 2025-05-18T17:44:21.767Z,
+    originalMaxAge: 2592000000,
+    httpOnly: true,
+    secure: true,
+    sameSite: 'none',
+    domain: '.idlecraps.com'
+  }
+}
+2025-04-18T17:44:21.799Z - GET /api/user
+Request cookies: undefined
+Session data: Session {
+  cookie: {
+    path: '/',
+    _expires: 2025-05-18T17:44:21.799Z,
+    originalMaxAge: 2592000000,
+    httpOnly: true,
+    secure: true,
+    sameSite: 'none',
+    domain: '.idlecraps.com'
+  }
+}
+/api/user - Session data: Session {
+  cookie: {
+    path: '/',
+    _expires: 2025-05-18T17:44:21.799Z,
+    originalMaxAge: 2592000000,
+    httpOnly: true,
+    secure: true,
+    sameSite: 'none',
+    domain: '.idlecraps.com'
+  }
+}
+/api/user - Cookies: undefined
+/api/user - No userId in session
+2025-04-18T17:44:23.315Z - GET /api/user
+Request cookies: undefined
+Session data: Session {
+  cookie: {
+    path: '/',
+    _expires: 2025-05-18T17:44:23.315Z,
+    originalMaxAge: 2592000000,
+    httpOnly: true,
+    secure: true,
+    sameSite: 'none',
+    domain: '.idlecraps.com'
+  }
+}
+/api/user - Session data: Session {
+  cookie: {
+    path: '/',
+    _expires: 2025-05-18T17:44:23.315Z,
+    originalMaxAge: 2592000000,
+    httpOnly: true,
+    secure: true,
+    sameSite: 'none',
+    domain: '.idlecraps.com'
+  }
+}
+/api/user - Cookies: undefined
+/api/user - No userId in session
+2025-04-18T17:44:27.388Z - GET /api/user
+Request cookies: undefined
+Session data: Session {
+  cookie: {
+    path: '/',
+    _expires: 2025-05-18T17:44:27.388Z,
+    originalMaxAge: 2592000000,
+    httpOnly: true,
+    secure: true,
+    sameSite: 'none',
+    domain: '.idlecraps.com'
+  }
+}
+/api/user - Session data: Session {
+  cookie: {
+    path: '/',
+    _expires: 2025-05-18T17:44:27.388Z,
+    originalMaxAge: 2592000000,
+    httpOnly: true,
+    secure: true,
+    sameSite: 'none',
+    domain: '.idlecraps.com'
+  }
+}
+/api/user - Cookies: undefined
+/api/user - No userId in session
+2025-04-18T17:44:27.617Z - GET /assets/index-CHUjvTT3.css
+Request cookies: undefined
+Session data: Session {
+  cookie: {
+    path: '/',
+    _expires: 2025-05-18T17:44:27.617Z,
+    originalMaxAge: 2592000000,
+    httpOnly: true,
+    secure: true,
+    sameSite: 'none',
+    domain: '.idlecraps.com'
+  }
+}
+2025-04-18T17:44:30.435Z - GET /
+Request cookies: undefined
+Session data: Session {
+  cookie: {
+    path: '/',
+    _expires: 2025-05-18T17:44:30.435Z,
+    originalMaxAge: 2592000000,
+    httpOnly: true,
+    secure: true,
+    sameSite: 'none',
+    domain: '.idlecraps.com'
+  }
+}
+2025-04-18T17:44:30.526Z - GET /assets/index-CHUjvTT3.css
+Request cookies: undefined
+Session data: Session {
+  cookie: {
+    path: '/',
+    _expires: 2025-05-18T17:44:30.526Z,
+    originalMaxAge: 2592000000,
+    httpOnly: true,
+    secure: true,
+    sameSite: 'none',
+    domain: '.idlecraps.com'
+  }
+}
+2025-04-18T17:44:30.535Z - GET /assets/index-B_UecVwv.js
+Request cookies: undefined
+Session data: Session {
+  cookie: {
+    path: '/',
+    _expires: 2025-05-18T17:44:30.535Z,
+    originalMaxAge: 2592000000,
+    httpOnly: true,
+    secure: true,
+    sameSite: 'none',
+    domain: '.idlecraps.com'
+  }
+}
+2025-04-18T17:44:30.632Z - GET /api/user
+Request cookies: undefined
+Session data: Session {
+  cookie: {
+    path: '/',
+    _expires: 2025-05-18T17:44:30.631Z,
+    originalMaxAge: 2592000000,
+    httpOnly: true,
+    secure: true,
+    sameSite: 'none',
+    domain: '.idlecraps.com'
+  }
+}
+/api/user - Session data: Session {
+  cookie: {
+    path: '/',
+    _expires: 2025-05-18T17:44:30.631Z,
+    originalMaxAge: 2592000000,
+    httpOnly: true,
+    secure: true,
+    sameSite: 'none',
+    domain: '.idlecraps.com'
+  }
+}
+/api/user - Cookies: undefined
+/api/user - No userId in session
+2025-04-18T17:44:30.650Z - GET /vite.svg
+Request cookies: undefined
+Session data: Session {
+  cookie: {
+    path: '/',
+    _expires: 2025-05-18T17:44:30.650Z,
+    originalMaxAge: 2592000000,
+    httpOnly: true,
+    secure: true,
+    sameSite: 'none',
+    domain: '.idlecraps.com'
+  }
+}
+2025-04-18T17:44:30.684Z - GET /api/user
+Request cookies: undefined
+Session data: Session {
+  cookie: {
+    path: '/',
+    _expires: 2025-05-18T17:44:30.684Z,
+    originalMaxAge: 2592000000,
+    httpOnly: true,
+    secure: true,
+    sameSite: 'none',
+    domain: '.idlecraps.com'
+  }
+}
+/api/user - Session data: Session {
+  cookie: {
+    path: '/',
+    _expires: 2025-05-18T17:44:30.684Z,
+    originalMaxAge: 2592000000,
+    httpOnly: true,
+    secure: true,
+    sameSite: 'none',
+    domain: '.idlecraps.com'
+  }
+}
+/api/user - Cookies: undefined
+/api/user - No userId in session
+2025-04-18T17:44:30.735Z - GET /api/user
+Request cookies: undefined
+Session data: Session {
+  cookie: {
+    path: '/',
+    _expires: 2025-05-18T17:44:30.735Z,
+    originalMaxAge: 2592000000,
+    httpOnly: true,
+    secure: true,
+    sameSite: 'none',
+    domain: '.idlecraps.com'
+  }
+}
+/api/user - Session data: Session {
+  cookie: {
+    path: '/',
+    _expires: 2025-05-18T17:44:30.735Z,
+    originalMaxAge: 2592000000,
+    httpOnly: true,
+    secure: true,
+    sameSite: 'none',
+    domain: '.idlecraps.com'
+  }
+}
+/api/user - Cookies: undefined
+/api/user - No userId in session
+2025-04-18T17:44:40.808Z - GET /api/user
+Request cookies: undefined
+Session data: Session {
+  cookie: {
+    path: '/',
+    _expires: 2025-05-18T17:44:40.807Z,
+    originalMaxAge: 2592000000,
+    httpOnly: true,
+    secure: true,
+    sameSite: 'none',
+    domain: '.idlecraps.com'
+  }
+}
+/api/user - Session data: Session {
+  cookie: {
+    path: '/',
+    _expires: 2025-05-18T17:44:40.807Z,
+    originalMaxAge: 2592000000,
+    httpOnly: true,
+    secure: true,
+    sameSite: 'none',
+    domain: '.idlecraps.com'
+  }
+}
+/api/user - Cookies: undefined
+/api/user - No userId in session
+2025-04-18T17:44:44.973Z - GET /api/user
+Request cookies: undefined
+Session data: Session {
+  cookie: {
+    path: '/',
+    _expires: 2025-05-18T17:44:44.973Z,
+    originalMaxAge: 2592000000,
+    httpOnly: true,
+    secure: true,
+    sameSite: 'none',
+    domain: '.idlecraps.com'
+  }
+}
+/api/user - Session data: Session {
+  cookie: {
+    path: '/',
+    _expires: 2025-05-18T17:44:44.973Z,
+    originalMaxAge: 2592000000,
+    httpOnly: true,
+    secure: true,
+    sameSite: 'none',
+    domain: '.idlecraps.com'
+  }
+}
+/api/user - Cookies: undefined
+/api/user - No userId in session
+2025-04-18T17:44:47.380Z - POST /api/login
+Request cookies: undefined
+Session data: Session {
+  cookie: {
+    path: '/',
+    _expires: 2025-05-18T17:44:47.380Z,
+    originalMaxAge: 2592000000,
+    httpOnly: true,
+    secure: true,
+    sameSite: 'none',
+    domain: '.idlecraps.com'
+  }
+}
+Before save - Session data: Session {
+  cookie: {
+    path: '/',
+    _expires: 2025-05-18T17:44:47.380Z,
+    originalMaxAge: 2592000000,
+    httpOnly: true,
+    secure: true,
+    sameSite: 'none',
+    domain: '.idlecraps.com'
+  },
+  userId: 1,
+  username: 'test1',
+  isAdmin: false
+}
+After save - Session data: Session {
+  cookie: {
+    path: '/',
+    _expires: 2025-05-18T17:44:47.380Z,
+    originalMaxAge: 2592000000,
+    httpOnly: true,
+    secure: true,
+    sameSite: 'none',
+    domain: '.idlecraps.com'
+  },
+  userId: 1,
+  username: 'test1',
+  isAdmin: false
+}
+Session ID: QHM92Yo0aPgkwi_DO6r32wudx5BDsFny
+2025-04-18T17:44:48.148Z - GET /assets/api-WqemYJA2.js
+Request cookies: undefined
+Session data: Session {
+  cookie: {
+    path: '/',
+    _expires: 2025-05-18T17:44:48.148Z,
+    originalMaxAge: 2592000000,
+    httpOnly: true,
+    secure: true,
+    sameSite: 'none',
+    domain: '.idlecraps.com'
+  }
+}
+2025-04-18T17:44:48.206Z - GET /api/gamestate
+Request cookies: undefined
+Session data: Session {
+  cookie: {
+    path: '/',
+    _expires: 2025-05-18T17:44:48.206Z,
+    originalMaxAge: 2592000000,
+    httpOnly: true,
+    secure: true,
+    sameSite: 'none',
+    domain: '.idlecraps.com'
+  }
+}
+Session data: Session {
+  cookie: {
+    path: '/',
+    _expires: 2025-05-18T17:44:48.206Z,
+    originalMaxAge: 2592000000,
+    httpOnly: true,
+    secure: true,
+    sameSite: 'none',
+    domain: '.idlecraps.com'
+  }
+}
+Cookies: undefined
+Authentication failed - no userId in session
+2025-04-18T17:44:48.264Z - POST /api/migrate
+Request cookies: undefined
+Session data: Session {
+  cookie: {
+    path: '/',
+    _expires: 2025-05-18T17:44:48.264Z,
+    originalMaxAge: 2592000000,
+    httpOnly: true,
+    secure: true,
+    sameSite: 'none',
+    domain: '.idlecraps.com'
+  }
+}
+Session data: Session {
+  cookie: {
+    path: '/',
+    _expires: 2025-05-18T17:44:48.264Z,
+    originalMaxAge: 2592000000,
+    httpOnly: true,
+    secure: true,
+    sameSite: 'none',
+    domain: '.idlecraps.com'
+  }
+}
+Cookies: undefined
+Authentication failed - no userId in session
+2025-04-18T17:44:49.966Z - POST /api/gamestate
+Request cookies: undefined
+Session data: Session {
+  cookie: {
+    path: '/',
+    _expires: 2025-05-18T17:44:49.966Z,
+    originalMaxAge: 2592000000,
+    httpOnly: true,
+    secure: true,
+    sameSite: 'none',
+    domain: '.idlecraps.com'
+  }
+}
+Session data: Session {
+  cookie: {
+    path: '/',
+    _expires: 2025-05-18T17:44:49.966Z,
+    originalMaxAge: 2592000000,
+    httpOnly: true,
+    secure: true,
+    sameSite: 'none',
+    domain: '.idlecraps.com'
+  }
+}
+Cookies: undefined
+Authentication failed - no userId in session
