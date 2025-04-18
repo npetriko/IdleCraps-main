@@ -2004,6 +2004,7 @@ canvas {
   overflow-y: auto;
   max-height: calc(75vh - 60px);
   flex-grow: 1;
+  text-align: center;
 }
 
 .leaderboard-panel .close-button {
@@ -2562,6 +2563,19 @@ button,
 
 .stats-button:hover {
   background-color: #0069d9;
+}
+
+/* Stats Buttons Container */
+.stats-buttons {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 10px;
+}
+
+.stats-button {
+  margin-top: 0;
 }
 
 /* Stats Overlay */

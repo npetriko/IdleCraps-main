@@ -35,7 +35,7 @@
 .user-info {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
 }
 
 .account-buttons {
@@ -95,6 +95,7 @@
   font-size: 0.8rem;
   color: #9E9E9E;
   font-style: italic;
+  text-align: center;
 }
 
 .login-overlay {
