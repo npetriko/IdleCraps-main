@@ -2040,6 +2040,31 @@ canvas {
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
+.leaderboard-footer {
+  padding: 15px;
+  display: flex;
+  justify-content: center;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.leaderboard-footer .exit-button {
+  padding: 8px 20px;
+  background: linear-gradient(to right, #4CAF50, #2E7D32);
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 100px;
+}
+
+.leaderboard-footer .exit-button:hover {
+  background: linear-gradient(to right, #66BB6A, #388E3C);
+  transform: translateY(-2px);
+}
+
 .results-history-header h3 {
   margin: 0;
   color: #FFC107;

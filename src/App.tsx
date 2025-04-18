@@ -107,6 +107,7 @@ function App() {
   const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [upgradeCount, setUpgradeCount] = useState(0);
   const [streak, setStreak] = useState(0);
+  const [highestStreak, setHighestStreak] = useState(0);
   const [totalRolls, setTotalRolls] = useState(0);
   const [totalWins, setTotalWins] = useState(0);
   const [hasWonFirstBet, setHasWonFirstBet] = useState(false); // Keep for now, simpler for quest/tutorial unlock
@@ -373,7 +374,12 @@ function App() {
     addResult(`Won $${profit.toFixed(2)} on ${betType.replace(/-/g, ' ')}`);
     // Only return the original bet if returnBet is true
     setBankroll(prev => prev + profit + (returnBet ? betAmount : 0));
-    setStreak(prev => prev + 1);
+    setStreak(prev => {
+      const newStreak = prev + 1;
+      // Update highest streak if current streak is higher
+      setHighestStreak(current => Math.max(current, newStreak));
+      return newStreak;
+    });
     setTotalWins(prev => prev + 1);
     setTotalWinnings(prev => prev + profit); // Add PROFIT to total winnings
 
@@ -403,7 +409,12 @@ function App() {
     setBankroll(prev => prev + profit); // Only add profit, bet stays
     setShowConfetti(true); // Trigger confetti
     setTimeout(() => setShowConfetti(false), 5000); // Stop confetti after 5 seconds (increased from 3)
-    setStreak(prev => prev + 1);
+    setStreak(prev => {
+      const newStreak = prev + 1;
+      // Update highest streak if current streak is higher
+      setHighestStreak(current => Math.max(current, newStreak));
+      return newStreak;
+    });
     setTotalWins(prev => prev + 1);
     setTotalWinnings(prev => prev + profit); // Add PROFIT to total winnings
     updateQuestProgress('pass-line-master', 1);
@@ -642,6 +653,7 @@ function App() {
         totalWins,
         totalWinnings,
         streak,
+        highestStreak,
         unlockedBets,
         unlockedChips,
         achievements: achievements.map(a => ({ id: a.id, unlocked: a.unlocked })),
@@ -691,7 +703,7 @@ function App() {
       addResult("Error saving game state.");
     }
   }, [
-    bankroll, passiveIncome, totalRolls, totalWins, totalWinnings, streak,
+    bankroll, passiveIncome, totalRolls, totalWins, totalWinnings, streak, highestStreak,
     unlockedBets, unlockedChips, achievements, placeBetExpertWins, quests,
     upgradeCount, hasWonFirstBet, completedTutorial, unlockedTutorials, isLoggedIn, addResult
   ]); // Dependencies for useCallback
@@ -754,6 +766,7 @@ function App() {
         if (savedState.totalWins !== undefined) setTotalWins(savedState.totalWins);
         if (savedState.totalWinnings !== undefined) setTotalWinnings(savedState.totalWinnings);
         if (savedState.streak !== undefined) setStreak(savedState.streak);
+        if (savedState.highestStreak !== undefined) setHighestStreak(savedState.highestStreak);
         if (savedState.upgradeCount !== undefined) setUpgradeCount(savedState.upgradeCount);
         if (savedState.hasWonFirstBet !== undefined) setHasWonFirstBet(savedState.hasWonFirstBet);
         if (savedState.completedTutorial !== undefined) setCompletedTutorial(savedState.completedTutorial);
@@ -1666,6 +1679,8 @@ function App() {
                <div className="stat-item"><div className="stat-label">Total Rolls:</div><div className="stat-value">{totalRolls}</div></div>
                <div className="stat-item"><div className="stat-label">Total Wins:</div><div className="stat-value">{totalWins}</div></div>
                <div className="stat-item"><div className="stat-label">Win Percentage:</div><div className="stat-value">{totalRolls > 0 ? ((totalWins / totalRolls) * 100).toFixed(1) : 0}%</div></div>
+               <div className="stat-item"><div className="stat-label">Current Win Streak:</div><div className="stat-value">{streak}</div></div>
+               <div className="stat-item"><div className="stat-label">Highest Win Streak:</div><div className="stat-value">{highestStreak}</div></div>
                <div className="stat-item"><div className="stat-label">Passive Income Rate:</div><div className="stat-value">${passiveIncome.toFixed(2)}/{TickSpeed/1000}s</div><div className="stat-note">(~1% of Global Winnings)</div></div>
              </div>
              <div className="stats-footer"><button className="exit-button" onClick={() => setShowStatsOverlay(false)}>Close</button></div>
@@ -1684,6 +1699,9 @@ function App() {
             </div>
             <div className="leaderboard-content">
               <Leaderboard />
+            </div>
+            <div className="leaderboard-footer">
+              <button className="exit-button" onClick={() => setShowLeaderboard(false)}>Close</button>
             </div>
           </div>
         </div>

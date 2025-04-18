@@ -239,50 +239,125 @@ export const updateLeaderboard = async (userId, bankroll, totalWinnings) => {
       passiveIncome = parseFloat(gameStateResult.rows[0].passive_income) || 1;
     }
     
+    // Check if the new columns exist
+    const checkColumns = await query(`
+      SELECT column_name
+      FROM information_schema.columns
+      WHERE table_name = 'leaderboard'
+      AND column_name IN ('passive_income', 'highest_win_streak')
+    `);
+    
+    const hasNewColumns = checkColumns.rows.length === 2;
+    
     // Check if user already exists in leaderboard
     const existingEntry = await query(
-      'SELECT id, highest_win_streak FROM leaderboard WHERE user_id = $1',
+      'SELECT id FROM leaderboard WHERE user_id = $1',
       [userId]
     );
     
     if (existingEntry.rows.length > 0) {
-      // Get current highest win streak
-      const currentHighestStreak = parseInt(existingEntry.rows[0].highest_win_streak) || 0;
-      
-      // Only update highest_win_streak if current streak is higher
-      const newHighestStreak = Math.max(currentHighestStreak, streak);
-      
       // Update existing entry
-      await query(
-        `UPDATE leaderboard
-         SET bankroll = $2, total_winnings = $3, passive_income = $4,
-         highest_win_streak = $5, updated_at = CURRENT_TIMESTAMP
-         WHERE user_id = $1`,
-        [userId, bankroll, totalWinnings, passiveIncome, newHighestStreak]
-      );
+      if (hasNewColumns) {
+        // If we have the new columns, get the current highest streak
+        const streakResult = await query(
+          'SELECT highest_win_streak FROM leaderboard WHERE user_id = $1',
+          [userId]
+        );
+        
+        const currentHighestStreak = streakResult.rows.length > 0 ?
+          (parseInt(streakResult.rows[0].highest_win_streak) || 0) : 0;
+        
+        // Only update highest_win_streak if current streak is higher
+        const newHighestStreak = Math.max(currentHighestStreak, streak);
+        
+        // Update with new columns
+        await query(
+          `UPDATE leaderboard
+           SET bankroll = $2, total_winnings = $3, passive_income = $4,
+           highest_win_streak = $5, updated_at = CURRENT_TIMESTAMP
+           WHERE user_id = $1`,
+          [userId, bankroll, totalWinnings, passiveIncome, newHighestStreak]
+        );
+      } else {
+        // Update without new columns
+        await query(
+          `UPDATE leaderboard
+           SET bankroll = $2, total_winnings = $3, updated_at = CURRENT_TIMESTAMP
+           WHERE user_id = $1`,
+          [userId, bankroll, totalWinnings]
+        );
+      }
     } else {
       // Insert new entry
-      await query(
-        `INSERT INTO leaderboard
-         (user_id, username, bankroll, total_winnings, passive_income, highest_win_streak, updated_at)
-         VALUES ($1, $2, $3, $4, $5, $6, CURRENT_TIMESTAMP)`,
-        [userId, username, bankroll, totalWinnings, passiveIncome, streak]
-      );
+      if (hasNewColumns) {
+        // Insert with new columns
+        await query(
+          `INSERT INTO leaderboard
+           (user_id, username, bankroll, total_winnings, passive_income, highest_win_streak, updated_at)
+           VALUES ($1, $2, $3, $4, $5, $6, CURRENT_TIMESTAMP)`,
+          [userId, username, bankroll, totalWinnings, passiveIncome, streak]
+        );
+      } else {
+        // Insert without new columns
+        await query(
+          `INSERT INTO leaderboard
+           (user_id, username, bankroll, total_winnings, updated_at)
+           VALUES ($1, $2, $3, $4, CURRENT_TIMESTAMP)`,
+          [userId, username, bankroll, totalWinnings]
+        );
+      }
     }
   } catch (error) {
     console.error('Error updating leaderboard:', error);
-    throw error;
+    // Don't throw the error, just log it
+    // This prevents the game state save from failing if leaderboard update fails
   }
 };
 
 export const getLeaderboard = async (limit = 100) => {
-  const result = await query(
-    `SELECT username, bankroll, total_winnings, passive_income, highest_win_streak, updated_at
-     FROM leaderboard
-     ORDER BY bankroll DESC LIMIT $1`,
-    [limit]
-  );
-  return result.rows;
+  try {
+    // First, check if the new columns exist
+    const checkColumns = await query(`
+      SELECT column_name
+      FROM information_schema.columns
+      WHERE table_name = 'leaderboard'
+      AND column_name IN ('passive_income', 'highest_win_streak')
+    `);
+    
+    const hasNewColumns = checkColumns.rows.length === 2;
+    
+    let result;
+    if (hasNewColumns) {
+      // If new columns exist, use them
+      result = await query(
+        `SELECT username, bankroll, total_winnings, passive_income, highest_win_streak, updated_at
+         FROM leaderboard
+         ORDER BY bankroll DESC LIMIT $1`,
+        [limit]
+      );
+    } else {
+      // If new columns don't exist, use only existing columns
+      result = await query(
+        `SELECT username, bankroll, total_winnings, updated_at
+         FROM leaderboard
+         ORDER BY bankroll DESC LIMIT $1`,
+        [limit]
+      );
+      
+      // Add default values for missing columns
+      result.rows = result.rows.map(row => ({
+        ...row,
+        passive_income: 1,
+        highest_win_streak: 0
+      }));
+    }
+    
+    return result.rows;
+  } catch (error) {
+    console.error('Error in getLeaderboard:', error);
+    // Return empty array in case of error
+    return [];
+  }
 };
 
 export default pool;
