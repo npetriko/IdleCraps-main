@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { FaUserShield, FaTrash, FaCoins, FaCalendarAlt, FaClock } from 'react-icons/fa';
 import '../AdminPanel.css';
+import { formatNumber } from '../utils/formatNumber';
 
 interface AdminPanelProps {
   currentUser: string | null;
@@ -139,7 +140,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ currentUser }) => {
                     </td>
                     <td>
                       {user.passive_income
-                        ? `$${user.passive_income.toFixed(2)}/tick`
+                        ? `${formatNumber(user.passive_income)}/tick`
                         : 'N/A'}
                     </td>
                     <td title={formatDate(user.created_at)}>

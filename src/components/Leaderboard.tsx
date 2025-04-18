@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { FaTrophy, FaUser, FaCoins, FaSpinner } from 'react-icons/fa';
+import { formatNumber } from '../utils/formatNumber';
 
 interface LeaderboardEntry {
   username: string;
@@ -72,7 +73,7 @@ const Leaderboard: React.FC = () => {
                 <td>{index + 1}</td>
                 <td><FaUser /> {entry.username}</td>
                 <td>{Number(entry.highest_win_streak).toLocaleString()}</td>
-                <td><FaCoins /> ${Number(entry.passive_income).toLocaleString()}/sec</td>
+                <td><FaCoins /> {formatNumber(Number(entry.passive_income))}/sec</td>
               </tr>
             ))}
           </tbody>

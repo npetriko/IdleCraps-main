@@ -1,4 +1,5 @@
 import { FaTimes, FaCoins, FaDice, FaPlay, FaTrophy, FaUnlock, FaTrash } from 'react-icons/fa';
+import { formatNumber } from '../utils/formatNumber';
 
 interface CheatTerminalProps {
   onClose: () => void;
@@ -82,16 +83,16 @@ const CheatTerminal = ({
             <h3>Economy Cheats</h3>
             <div className="economy-cheats">
               <button onClick={() => onAddMoney(100)}>
-                <FaCoins /> $100
+                <FaCoins /> {formatNumber(100)}
               </button>
               <button onClick={() => onAddMoney(1000)}>
-                <FaCoins /> $1,000
+                <FaCoins /> {formatNumber(1000)}
               </button>
               <button onClick={() => onAddMoney(10000)}>
-                <FaCoins /> $10,000
+                <FaCoins /> {formatNumber(10000)}
               </button>
               <button onClick={() => onAddMoney(100000)}>
-                <FaCoins /> $100,000
+                <FaCoins /> {formatNumber(100000)}
               </button>
             </div>
           </section>

@@ -1986,16 +1986,23 @@ canvas {
 
 .results-history-header, .leaderboard-header {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
   padding: 15px 20px;
   background: rgba(0, 0, 0, 0.2);
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  justify-content: space-between; /* Keep space-between */
-  align-items: center; /* Keep center */
   padding: 12px 18px; /* Adjusted padding */
   border-bottom: 1px solid rgba(255, 255, 255, 0.15); /* Match border */
   background-color: rgba(0, 0, 0, 0.1); /* Subtle header background */
+  position: relative;
+}
+
+/* Position the close button absolutely to maintain header centering */
+.leaderboard-header .close-button {
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
 }
 
 /* Leaderboard specific styles */

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { FaUnlock, FaLock, FaTimes } from 'react-icons/fa';
 import '../App.css';
+import { formatNumber } from '../utils/formatNumber';
 
 interface UpgradesProps {
   unlockedBets: { [key: string]: boolean };
@@ -103,7 +104,7 @@ const Upgrades: React.FC<UpgradesProps> = ({
                   {unlockedBets[betType] ? (
                     <div className="upgrade-status">Unlocked</div>
                   ) : (
-                    <div className="upgrade-cost">${cost}</div>
+                    <div className="upgrade-cost">{formatNumber(cost)}</div>
                   )}
                 </div>
               </div>
@@ -122,16 +123,16 @@ const Upgrades: React.FC<UpgradesProps> = ({
                   onClick={() => !unlockedChips.includes(value) && unlockChip(value)}
                 >
                   <div className={`upgrade-icon chip-icon value-${chipValue}`}>
-                    ${Math.floor(parseInt(chipValue))}
+                    {formatNumber(parseInt(chipValue), false)}
                   </div>
                   <div className="upgrade-details">
                     <div className="upgrade-name">
-                      ${chipValue} Chip
+                      {formatNumber(parseInt(chipValue), false)} Chip
                     </div>
                     {unlockedChips.includes(value) ? (
                       <div className="upgrade-status">Unlocked</div>
                     ) : (
-                      <div className="upgrade-cost">${cost}</div>
+                      <div className="upgrade-cost">{formatNumber(cost)}</div>
                     )}
                   </div>
                 </div>

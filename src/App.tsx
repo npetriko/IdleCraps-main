@@ -13,6 +13,7 @@ import Upgrades, { BET_UNLOCK_COSTS, CHIP_UNLOCK_COSTS } from './components/Upgr
 import ReactConfetti from 'react-confetti'; // Import confetti
 import useWindowSize from 'react-use/lib/useWindowSize'; // Import hook for window size
 import Leaderboard from './components/Leaderboard'; // Import Leaderboard component
+import { formatNumber } from './utils/formatNumber'; // Import number formatting utility
 
 // Dice face characters
 const DICE_FACES: { [key: number]: string } = {
@@ -246,7 +247,7 @@ function App() {
     if (bankroll >= cost && !unlockedBets[betType]) {
       setBankroll(prev => prev - cost);
       setUnlockedBets(prev => ({ ...prev, [betType]: true }));
-      addResult(`Unlocked ${betType.replace('-', ' ')} bet for $${cost}`);
+      addResult(`Unlocked ${betType.replace('-', ' ')} bet for ${formatNumber(cost)}`);
       // Potentially update 'place-bet-collector' quest progress here if needed
       const collectorQuest = quests.find(q => q.id === 'place-bet-collector');
       if (collectorQuest && collectorQuest.unlocked && !collectorQuest.completed && betType.startsWith('place-')) {
@@ -269,7 +270,7 @@ function App() {
     } else if (unlockedBets[betType]) {
       addResult(`${betType.replace('-', ' ')} bet already unlocked.`);
     } else {
-      addResult(`Not enough funds to unlock ${betType.replace('-', ' ')} bet (cost: $${cost})`);
+      addResult(`Not enough funds to unlock ${betType.replace('-', ' ')} bet (cost: ${formatNumber(cost)})`);
     }
   };
 
@@ -278,11 +279,11 @@ function App() {
      if (bankroll >= cost && !unlockedChips.includes(chipValue)) {
        setBankroll(prev => prev - cost);
        setUnlockedChips(prev => [...prev, chipValue].sort((a, b) => a - b)); // Add and sort
-       addResult(`Unlocked $${chipValue} chip for $${cost}`);
+       addResult(`Unlocked ${formatNumber(chipValue, false)} chip for ${formatNumber(cost)}`);
      } else if (unlockedChips.includes(chipValue)) {
-       addResult(`$${chipValue} chip already unlocked.`);
+       addResult(`${formatNumber(chipValue, false)} chip already unlocked.`);
      } else {
-       addResult(`Not enough funds to unlock $${chipValue} chip (cost: $${cost})`);
+       addResult(`Not enough funds to unlock ${formatNumber(chipValue, false)} chip (cost: ${formatNumber(cost)})`);
      }
   };
   // --- End Upgrade Functions ---
@@ -292,7 +293,7 @@ function App() {
   useEffect(() => {
     const timer = setInterval(() => {
       setBankroll(prev => prev + passiveIncome);
-      addResult(`+ $${passiveIncome.toFixed(2)} passive income`);
+      addResult(`+ ${formatNumber(passiveIncome)} passive income`);
     }, TickSpeed);
 
     return () => clearInterval(timer); // Clean up timer
@@ -338,7 +339,7 @@ function App() {
       return newBets;
     });
     setBankroll(prevBankroll => prevBankroll - selectedChip);
-    addResult(`Placed $${selectedChip} on ${betType.replace(/-/g, ' ')}`);
+    addResult(`Placed ${formatNumber(selectedChip)} on ${betType.replace(/-/g, ' ')}`);
   };
 
   // Function to remove a bet (Keep as is)
@@ -371,7 +372,7 @@ function App() {
   // --- Refactored Win Handling ---
   // Standardized: Expects PROFIT only, updates bankroll by (bet + profit)
   const handleStandardWin = (betType: string, betAmount: number, profit: number, returnBet: boolean = true) => {
-    addResult(`Won $${profit.toFixed(2)} on ${betType.replace(/-/g, ' ')}`);
+    addResult(`Won ${formatNumber(profit)} on ${betType.replace(/-/g, ' ')}`);
     // Only return the original bet if returnBet is true
     setBankroll(prev => prev + profit + (returnBet ? betAmount : 0));
     setStreak(prev => {
@@ -405,7 +406,7 @@ function App() {
   // Bet stays on the table after winning.
   const handlePassLineWin = (betAmount: number, messagePrefix: string = "") => {
     const profit = betAmount; // Pass line pays 1:1
-    addResult(`${messagePrefix}Won $${profit.toFixed(2)} on Pass Line`);
+    addResult(`${messagePrefix}Won ${formatNumber(profit)} on Pass Line`);
     setBankroll(prev => prev + profit); // Only add profit, bet stays
     setShowConfetti(true); // Trigger confetti
     setTimeout(() => setShowConfetti(false), 5000); // Stop confetti after 5 seconds (increased from 3)
@@ -439,7 +440,7 @@ function App() {
 
   // Handle Loss
   const handleLoss = (betType: string, betAmount: number, messageSuffix: string = "") => {
-    addResult(`Lost $${betAmount.toFixed(2)} on ${betType.replace(/-/g, ' ')}${messageSuffix}`);
+    addResult(`Lost ${formatNumber(betAmount)} on ${betType.replace(/-/g, ' ')}${messageSuffix}`);
     setStreak(0);
     // Bankroll already reduced when bet was placed
     // Remove the losing bet from active bets
@@ -689,6 +690,10 @@ function App() {
           addResult("Error saving game state to database. Falling back to localStorage.");
           // Fall back to localStorage if API save fails
           localStorage.setItem('idleCrapsGameState', JSON.stringify(gameState));
+          // Still update lastSaveTime even when falling back to localStorage
+          const now = new Date();
+          setLastSaveTime(now);
+          addResult(`Game state saved locally as fallback! (${now.toLocaleTimeString()})`);
         }
       } else {
         // If not logged in, save to localStorage as before
@@ -712,7 +717,7 @@ function App() {
   useEffect(() => {
     const autoSaveInterval = setInterval(() => {
       handleSaveState();
-    }, 60000); // Auto-save every 60 seconds
+    }, 60000); // Auto-save every 1 minute (60,000 ms)
 
     return () => clearInterval(autoSaveInterval); // Cleanup interval on unmount
   }, [handleSaveState]); // Rerun if handleSaveState changes (due to its dependencies)
@@ -1563,11 +1568,11 @@ function App() {
           {/* Bankroll Section */}
           <div className="bankroll-section">
             <div className="bankroll-title">Your bankroll</div>
-            <div className="bankroll-value">${bankroll.toFixed(2)}</div>
+            <div className="bankroll-value">{formatNumber(bankroll)}</div>
             <div className="passive-income">
               <div className="income-header">
                 <div className="income-title">Passive Income</div>
-                <div className="income-value">${passiveIncome.toFixed(2)} / {TickSpeed/1000}s</div>
+                <div className="income-value">{formatNumber(passiveIncome)} / {TickSpeed/1000}s</div>
               </div>
               {/* Progress bar removed */}
             </div>
@@ -1724,13 +1729,13 @@ function App() {
            <div className="stats-panel">
              <div className="stats-header"><h3>Game Statistics</h3><button className="close-button" onClick={() => setShowStatsOverlay(false)}><FaTimes /></button></div>
              <div className="stats-content">
-               <div className="stat-item"><div className="stat-label">Total Profit:</div><div className="stat-value">${totalWinnings.toFixed(2)}</div></div>
+               <div className="stat-item"><div className="stat-label">Total Profit:</div><div className="stat-value">{formatNumber(totalWinnings)}</div></div>
                <div className="stat-item"><div className="stat-label">Total Rolls:</div><div className="stat-value">{totalRolls}</div></div>
                <div className="stat-item"><div className="stat-label">Total Wins:</div><div className="stat-value">{totalWins}</div></div>
                <div className="stat-item"><div className="stat-label">Win Percentage:</div><div className="stat-value">{totalRolls > 0 ? ((totalWins / totalRolls) * 100).toFixed(1) : 0}%</div></div>
                <div className="stat-item"><div className="stat-label">Current Win Streak:</div><div className="stat-value">{streak}</div></div>
                <div className="stat-item"><div className="stat-label">Highest Win Streak:</div><div className="stat-value">{highestStreak}</div></div>
-               <div className="stat-item"><div className="stat-label">Passive Income Rate:</div><div className="stat-value">${passiveIncome.toFixed(2)}/{TickSpeed/1000}s</div><div className="stat-note">(~1% of Global Winnings)</div></div>
+               <div className="stat-item"><div className="stat-label">Passive Income Rate:</div><div className="stat-value">{formatNumber(passiveIncome)}/{TickSpeed/1000}s</div><div className="stat-note">(~1% of Global Winnings)</div></div>
              </div>
              <div className="stats-footer"><button className="exit-button" onClick={() => setShowStatsOverlay(false)}>Close</button></div>
            </div>
