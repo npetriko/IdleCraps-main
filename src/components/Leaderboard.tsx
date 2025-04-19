@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, forwardRef, useImperativeHandle } from 'react';
 import { FaTrophy, FaUser, FaCoins, FaSpinner } from 'react-icons/fa';
 import { formatNumber } from '../utils/formatNumber';
 
@@ -14,34 +14,45 @@ interface LeaderboardEntry {
 
 type SortField = 'bankroll' | 'highest_win_streak' | 'highest_loss_streak' | 'passive_income';
 
-const Leaderboard: React.FC = () => {
+export interface LeaderboardRef {
+  refreshLeaderboard: () => Promise<void>;
+}
+
+const Leaderboard = forwardRef<LeaderboardRef, {}>((_props, ref) => {
   const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [sortField, setSortField] = useState<SortField>('passive_income');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
   
-  useEffect(() => {
-    const fetchLeaderboard = async () => {
-      try {
-        setLoading(true);
-        const response = await fetch('/api/leaderboard');
-        
-        if (!response.ok) {
-          throw new Error('Failed to fetch leaderboard data');
-        }
-        
-        const data = await response.json();
-        setEntries(data);
-        setError(null);
-      } catch (error) {
-        console.error('Error fetching leaderboard:', error);
-        setError('Unable to load leaderboard data. Please try again later.');
-      } finally {
-        setLoading(false);
+  // Function to fetch leaderboard data
+  const fetchLeaderboard = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch('/api/leaderboard');
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch leaderboard data');
       }
-    };
-    
+      
+      const data = await response.json();
+      setEntries(data);
+      setError(null);
+    } catch (error) {
+      console.error('Error fetching leaderboard:', error);
+      setError('Unable to load leaderboard data. Please try again later.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Make fetchLeaderboard available to parent components
+  useImperativeHandle(ref, () => ({
+    refreshLeaderboard: fetchLeaderboard
+  }));
+  
+  useEffect(() => {
+    // Initial fetch
     fetchLeaderboard();
     
     // Refresh leaderboard every 5 minutes
@@ -127,6 +138,6 @@ const Leaderboard: React.FC = () => {
       )}
     </div>
   );
-};
+});
 
 export default Leaderboard;
