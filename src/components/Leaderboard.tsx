@@ -1,4 +1,4 @@
-import { useState, useEffect, forwardRef, useImperativeHandle } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FaTrophy, FaUser, FaCoins, FaSpinner } from 'react-icons/fa';
 import { formatNumber } from '../utils/formatNumber';
 
@@ -14,11 +14,10 @@ interface LeaderboardEntry {
 
 type SortField = 'bankroll' | 'highest_win_streak' | 'highest_loss_streak' | 'passive_income';
 
-export interface LeaderboardRef {
-  refreshLeaderboard: () => Promise<void>;
-}
+// Create a custom event for game saves
+export const GAME_SAVED_EVENT = 'game-saved';
 
-const Leaderboard = forwardRef<LeaderboardRef, {}>((_props, ref) => {
+const Leaderboard: React.FC = () => {
   const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -46,11 +45,6 @@ const Leaderboard = forwardRef<LeaderboardRef, {}>((_props, ref) => {
     }
   };
 
-  // Make fetchLeaderboard available to parent components
-  useImperativeHandle(ref, () => ({
-    refreshLeaderboard: fetchLeaderboard
-  }));
-  
   useEffect(() => {
     // Initial fetch
     fetchLeaderboard();
@@ -58,7 +52,18 @@ const Leaderboard = forwardRef<LeaderboardRef, {}>((_props, ref) => {
     // Refresh leaderboard every 5 minutes
     const interval = setInterval(fetchLeaderboard, 5 * 60 * 1000);
     
-    return () => clearInterval(interval);
+    // Listen for game-saved events
+    const handleGameSaved = () => {
+      console.log('Leaderboard: Game saved event detected, refreshing data');
+      fetchLeaderboard();
+    };
+    
+    window.addEventListener(GAME_SAVED_EVENT, handleGameSaved);
+    
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener(GAME_SAVED_EVENT, handleGameSaved);
+    };
   }, []);
   
   // Function to handle sorting
@@ -138,6 +143,6 @@ const Leaderboard = forwardRef<LeaderboardRef, {}>((_props, ref) => {
       )}
     </div>
   );
-});
+};
 
 export default Leaderboard;

@@ -12,7 +12,7 @@ import QuestTutorial from './components/QuestTutorial';
 import Upgrades, { BET_UNLOCK_COSTS, CHIP_UNLOCK_COSTS } from './components/Upgrades'; // Import Upgrades and costs
 import ReactConfetti from 'react-confetti'; // Import confetti
 import useWindowSize from 'react-use/lib/useWindowSize'; // Import hook for window size
-import Leaderboard, { LeaderboardRef } from './components/Leaderboard'; // Import Leaderboard component and its ref type
+import Leaderboard, { GAME_SAVED_EVENT } from './components/Leaderboard'; // Import Leaderboard component and event
 import { formatNumber } from './utils/formatNumber'; // Import number formatting utility
 
 // Dice face characters
@@ -77,7 +77,6 @@ function App() {
   const [passiveIncome, setPassiveIncome] = useState(1);
   const [totalWinnings, setTotalWinnings] = useState(0); // Track total PROFIT from bets
   const animationDurations = useRef<[number, number]>([0.5, 0.5]);
-  const leaderboardRef = useRef<LeaderboardRef>(null);
 
   // Additional state for betting
   const [activeBets, setActiveBets] = useState<{ [key: string]: number }>({});
@@ -699,10 +698,9 @@ function App() {
           console.log("Saving game state to database:", gameState);
           console.log("Save result:", result);
           
-          // Refresh leaderboard after saving
-          if (leaderboardRef.current) {
-            leaderboardRef.current.refreshLeaderboard();
-          }
+          // Dispatch game-saved event to refresh leaderboard
+          window.dispatchEvent(new Event(GAME_SAVED_EVENT));
+          
         } catch (apiError) {
           console.error("Error saving game state to database:", apiError);
           addResult("Error saving game state to database. Falling back to localStorage.");
@@ -1786,7 +1784,7 @@ function App() {
               <button className="close-button" onClick={() => setShowLeaderboard(false)}><FaTimes /></button>
             </div>
             <div className="leaderboard-content">
-              <Leaderboard ref={leaderboardRef} />
+              <Leaderboard />
             </div>
             <div className="leaderboard-footer">
               <button className="exit-button" onClick={() => setShowLeaderboard(false)}>Close</button>

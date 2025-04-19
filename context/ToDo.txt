@@ -18,3 +18,4 @@ Leaderboard - default sort by passive income
 Autosave every minute - should be equivalent to the save button
 Craps calls on the roll - yo eleven for example
 Don't Pass wins quest not tracking properly
+Make it so that the next chip size doesn't show until the previous is purchased
