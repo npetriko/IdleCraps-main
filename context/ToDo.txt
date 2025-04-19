@@ -1,10 +1,11 @@
 Review initial tutorials for accuracy (7 and 9?)
 Add further upgrades:
 	Passive Income increased percentage
-	Auto-Betting
+	Auto-Betting + Auto strategies
 	Auto-Rolling
 	Win-Streak Bonus
-Add Casino Mode
+Add Casino Mode - a minigame that plays exactly like real Craps that you can play to earn a secondary premium currency
+	To play, you have to buy tickekts with cash
 Casino etiquette tips
 More hand holding during the tutorial
 Fix tutorial highlighting
@@ -19,3 +20,5 @@ Autosave every minute - should be equivalent to the save button
 Craps calls on the roll - yo eleven for example
 Don't Pass wins quest not tracking properly
 Make it so that the next chip size doesn't show until the previous is purchased
+Multiplayer!
+Questline to teach statistics
