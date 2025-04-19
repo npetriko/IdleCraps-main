@@ -69,6 +69,8 @@ export const saveGameState = async (userId, gameState) => {
     const totalWinnings = parseFloat(gameState.totalWinnings) || 0;
     const streak = parseInt(gameState.streak) || 0;
     const highestStreak = parseInt(gameState.highestStreak) || 0;
+    const lossStreak = parseInt(gameState.lossStreak) || 0;
+    const highestLossStreak = parseInt(gameState.highestLossStreak) || 0;
     const upgradeCount = parseInt(gameState.upgradeCount) || 0;
     const hasWonFirstBet = gameState.hasWonFirstBet === true;
     const completedTutorial = gameState.completedTutorial === true;
@@ -93,15 +95,17 @@ export const saveGameState = async (userId, gameState) => {
           total_winnings = $6,
           streak = $7,
           highest_streak = $8,
-          unlocked_bets = $9,
-          unlocked_chips = $10,
-          achievements = $11,
-          place_bet_expert_wins = $12,
-          quests = $13,
-          upgrade_count = $14,
-          has_won_first_bet = $15,
-          completed_tutorial = $16,
-          unlocked_tutorials = $17,
+          loss_streak = $9,
+          highest_loss_streak = $10,
+          unlocked_bets = $11,
+          unlocked_chips = $12,
+          achievements = $13,
+          place_bet_expert_wins = $14,
+          quests = $15,
+          upgrade_count = $16,
+          has_won_first_bet = $17,
+          completed_tutorial = $18,
+          unlocked_tutorials = $19,
           updated_at = CURRENT_TIMESTAMP
         WHERE user_id = $1`,
         [
@@ -113,6 +117,8 @@ export const saveGameState = async (userId, gameState) => {
           totalWinnings,
           streak,
           highestStreak,
+          lossStreak,
+          highestLossStreak,
           unlockedBets,
           unlockedChips,
           achievements,
@@ -130,9 +136,10 @@ export const saveGameState = async (userId, gameState) => {
       await query(
         `INSERT INTO game_states (
           user_id, bankroll, passive_income, total_rolls, total_wins, total_winnings,
-          streak, highest_streak, unlocked_bets, unlocked_chips, achievements, place_bet_expert_wins,
-          quests, upgrade_count, has_won_first_bet, completed_tutorial, unlocked_tutorials
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)`,
+          streak, highest_streak, loss_streak, highest_loss_streak, unlocked_bets, unlocked_chips,
+          achievements, place_bet_expert_wins, quests, upgrade_count, has_won_first_bet,
+          completed_tutorial, unlocked_tutorials
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19)`,
         [
           userId,
           bankroll,
@@ -142,6 +149,8 @@ export const saveGameState = async (userId, gameState) => {
           totalWinnings,
           streak,
           highestStreak,
+          lossStreak,
+          highestLossStreak,
           unlockedBets,
           unlockedChips,
           achievements,
@@ -189,6 +198,8 @@ export const getGameState = async (userId) => {
         totalWinnings: parseFloat(gameState.total_winnings) || 0,
         streak: parseInt(gameState.streak) || 0,
         highestStreak: parseInt(gameState.highest_streak) || 0,
+        lossStreak: parseInt(gameState.loss_streak) || 0,
+        highestLossStreak: parseInt(gameState.highest_loss_streak) || 0,
         unlockedBets: typeof gameState.unlocked_bets === 'string' ? JSON.parse(gameState.unlocked_bets) : gameState.unlocked_bets || {},
         unlockedChips: typeof gameState.unlocked_chips === 'string' ? JSON.parse(gameState.unlocked_chips) : gameState.unlocked_chips || [],
         achievements: typeof gameState.achievements === 'string' ? JSON.parse(gameState.achievements) : gameState.achievements || [],
@@ -213,6 +224,8 @@ export const getGameState = async (userId) => {
         totalWinnings: parseFloat(gameState.total_winnings) || 0,
         streak: parseInt(gameState.streak) || 0,
         highestStreak: parseInt(gameState.highest_streak) || 0,
+        lossStreak: parseInt(gameState.loss_streak) || 0,
+        highestLossStreak: parseInt(gameState.highest_loss_streak) || 0,
         unlockedBets: { 'pass-line': true },
         unlockedChips: [1, 5, 10],
         lastSaveTime: gameState.updated_at
@@ -231,19 +244,22 @@ export const updateLeaderboard = async (userId, bankroll, totalWinnings) => {
     const userResult = await query('SELECT username FROM users WHERE id = $1', [userId]);
     const username = userResult.rows[0].username;
     
-    // Get highest streak and passive income from game_states
+    // Get highest streak, highest loss streak, and passive income from game_states
     const gameStateResult = await query(
-      'SELECT streak, highest_streak, passive_income FROM game_states WHERE user_id = $1',
+      'SELECT streak, highest_streak, loss_streak, highest_loss_streak, passive_income FROM game_states WHERE user_id = $1',
       [userId]
     );
     
     let highestStreak = 0;
+    let highestLossStreak = 0;
     let passiveIncome = 1;
     
     if (gameStateResult.rows.length > 0) {
       // Use the highest_streak field if it exists, otherwise fall back to streak
       highestStreak = parseInt(gameStateResult.rows[0].highest_streak) ||
                       parseInt(gameStateResult.rows[0].streak) || 0;
+      highestLossStreak = parseInt(gameStateResult.rows[0].highest_loss_streak) ||
+                          parseInt(gameStateResult.rows[0].loss_streak) || 0;
       passiveIncome = parseFloat(gameStateResult.rows[0].passive_income) || 1;
     }
     
@@ -252,10 +268,10 @@ export const updateLeaderboard = async (userId, bankroll, totalWinnings) => {
       SELECT column_name
       FROM information_schema.columns
       WHERE table_name = 'leaderboard'
-      AND column_name IN ('passive_income', 'highest_win_streak')
+      AND column_name IN ('passive_income', 'highest_win_streak', 'highest_loss_streak')
     `);
     
-    const hasNewColumns = checkColumns.rows.length === 2;
+    const hasNewColumns = checkColumns.rows.length === 3;
     
     // Check if user already exists in leaderboard
     const existingEntry = await query(
@@ -282,9 +298,9 @@ export const updateLeaderboard = async (userId, bankroll, totalWinnings) => {
         await query(
           `UPDATE leaderboard
            SET bankroll = $2, total_winnings = $3, passive_income = $4,
-           highest_win_streak = $5, updated_at = CURRENT_TIMESTAMP
+           highest_win_streak = $5, highest_loss_streak = $6, updated_at = CURRENT_TIMESTAMP
            WHERE user_id = $1`,
-          [userId, bankroll, totalWinnings, passiveIncome, newHighestStreak]
+          [userId, bankroll, totalWinnings, passiveIncome, newHighestStreak, highestLossStreak]
         );
       } else {
         // Update without new columns
@@ -301,9 +317,9 @@ export const updateLeaderboard = async (userId, bankroll, totalWinnings) => {
         // Insert with new columns
         await query(
           `INSERT INTO leaderboard
-           (user_id, username, bankroll, total_winnings, passive_income, highest_win_streak, updated_at)
-           VALUES ($1, $2, $3, $4, $5, $6, CURRENT_TIMESTAMP)`,
-          [userId, username, bankroll, totalWinnings, passiveIncome, streak]
+           (user_id, username, bankroll, total_winnings, passive_income, highest_win_streak, highest_loss_streak, updated_at)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, CURRENT_TIMESTAMP)`,
+          [userId, username, bankroll, totalWinnings, passiveIncome, highestStreak, highestLossStreak]
         );
       } else {
         // Insert without new columns
@@ -338,7 +354,7 @@ export const getLeaderboard = async (limit = 100) => {
     if (hasNewColumns) {
       // If new columns exist, use them
       result = await query(
-        `SELECT username, bankroll, total_winnings, passive_income, highest_win_streak, updated_at
+        `SELECT username, bankroll, total_winnings, passive_income, highest_win_streak, highest_loss_streak, updated_at
          FROM leaderboard
          ORDER BY bankroll DESC LIMIT $1`,
         [limit]
@@ -356,7 +372,8 @@ export const getLeaderboard = async (limit = 100) => {
       result.rows = result.rows.map(row => ({
         ...row,
         passive_income: 1,
-        highest_win_streak: 0
+        highest_win_streak: 0,
+        highest_loss_streak: 0
       }));
     }
     

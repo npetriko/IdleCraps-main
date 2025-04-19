@@ -22,7 +22,13 @@ export const formatNumber = (
   const absValue = Math.abs(value);
   
   // Format based on magnitude
-  if (absValue >= 1_000_000) {
+  if (absValue >= 1_000_000_000) {
+    // Convert to billions (b)
+    const formatted = (absValue / 1_000_000_000).toFixed(decimalPlaces);
+    // Remove trailing zeros after decimal point
+    const cleanFormatted = formatted.replace(/\.?0+$/, '');
+    return `${isNegative ? '-' : ''}${prefix}${cleanFormatted}b`;
+  } else if (absValue >= 1_000_000) {
     // Convert to millions (m)
     const formatted = (absValue / 1_000_000).toFixed(decimalPlaces);
     // Remove trailing zeros after decimal point

@@ -8,3 +8,13 @@ Add Casino Mode
 Casino etiquette tips
 More hand holding during the tutorial
 Fix tutorial highlighting
+Check for if tutorial has already been completed
+Place Bets - note that they aren't working when the point is off
+Field bets still can't be removed at any time
+Come bets and don't come bets - explain how they are like their own private game, operating the same as a come out roll but only affecting you
+Add reminder to not forget about pass line bets in the Field Bet tutorial since they're your core bet
+Tutorial if bankroll goes below $10 for the first time - explain to let passive income do its thing
+Leaderboard - default sort by passive income
+Autosave every minute - should be equivalent to the save button
+Craps calls on the roll - yo eleven for example
+Don't Pass wins quest not tracking properly

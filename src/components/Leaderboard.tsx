@@ -8,16 +8,17 @@ interface LeaderboardEntry {
   total_winnings: number;
   passive_income: number;
   highest_win_streak: number;
+  highest_loss_streak: number;
   updated_at: string;
 }
 
-type SortField = 'bankroll' | 'highest_win_streak' | 'passive_income';
+type SortField = 'bankroll' | 'highest_win_streak' | 'highest_loss_streak' | 'passive_income';
 
 const Leaderboard: React.FC = () => {
   const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [sortField, setSortField] = useState<SortField>('bankroll');
+  const [sortField, setSortField] = useState<SortField>('passive_income');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
   
   useEffect(() => {
@@ -98,6 +99,12 @@ const Leaderboard: React.FC = () => {
                 Highest Win Streak
               </th>
               <th
+                onClick={() => handleSort('highest_loss_streak')}
+                className={`sortable ${sortField === 'highest_loss_streak' ? 'sorted-' + sortDirection : ''}`}
+              >
+                Highest Loss Streak
+              </th>
+              <th
                 onClick={() => handleSort('passive_income')}
                 className={`sortable ${sortField === 'passive_income' ? 'sorted-' + sortDirection : ''}`}
               >
@@ -111,6 +118,7 @@ const Leaderboard: React.FC = () => {
                 <td>{index + 1}</td>
                 <td><FaUser /> {entry.username}</td>
                 <td>{Number(entry.highest_win_streak).toLocaleString()}</td>
+                <td>{Number(entry.highest_loss_streak).toLocaleString()}</td>
                 <td><FaCoins /> {formatNumber(Number(entry.passive_income))}/sec</td>
               </tr>
             ))}

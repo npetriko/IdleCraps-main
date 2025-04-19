@@ -270,6 +270,12 @@ button *,
 .chip.value-50 { background: radial-gradient(circle at 30% 30%, #E91E63, #C2185B); }
 .chip.value-100 { background: radial-gradient(circle at 30% 30%, #9C27B0, #6A1B9A); }
 .chip.value-1000 { background: radial-gradient(circle at 30% 30%, #212121, #000000); border-color: #FFC107; }
+.chip.value-10000 { background: radial-gradient(circle at 30% 30%, #FFD700, #B8860B); border-color: #FFFFFF; }
+.chip.value-100000 { background: radial-gradient(circle at 30% 30%, #C0C0C0, #708090); border-color: #87CEEB; }
+.chip.value-1000000 { background: radial-gradient(circle at 30% 30%, #50C878, #2E8B57); border-color: #FFFFFF; }
+.chip.value-10000000 { background: radial-gradient(circle at 30% 30%, #E0115F, #8B0000); border-color: #FFD700; }
+.chip.value-100000000 { background: radial-gradient(circle at 30% 30%, #0047AB, #00008B); border-color: #ADD8E6; }
+.chip.value-1000000000 { background: radial-gradient(circle at 30% 30%, #B9F2FF, #4B0082); border-color: #FFFFFF; }
 .chip.value-0_25 { background: radial-gradient(circle at 30% 30%, #ECEFF1, #B0BEC5); }
 
 .bankroll-section, .info-section {
@@ -1102,6 +1108,42 @@ h1 {
 .value-1000 {
   color: #FFC107;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+.value-10000 {
+  color: #FFFFFF;
+  text-shadow: 0 0 4px rgba(255, 215, 0, 0.8);
+  font-size: 0.65rem !important;
+}
+
+.value-100000 {
+  color: #E0FFFF;
+  text-shadow: 0 0 4px rgba(135, 206, 235, 0.8);
+  font-size: 0.6rem !important;
+}
+
+.value-1000000 {
+  color: #FFFFFF;
+  text-shadow: 0 0 4px rgba(46, 139, 87, 0.8);
+  font-size: 0.55rem !important;
+}
+
+.value-10000000 {
+  color: #FFD700;
+  text-shadow: 0 0 4px rgba(139, 0, 0, 0.8);
+  font-size: 0.5rem !important;
+}
+
+.value-100000000 {
+  color: #ADD8E6;
+  text-shadow: 0 0 4px rgba(0, 0, 139, 0.8);
+  font-size: 0.45rem !important;
+}
+
+.value-1000000000 {
+  color: #FFFFFF;
+  text-shadow: 0 0 5px rgba(75, 0, 130, 0.8), 0 0 8px rgba(255, 255, 255, 0.8);
+  font-size: 0.4rem !important;
 }
 
 /* Improve rendering performance with hardware acceleration */

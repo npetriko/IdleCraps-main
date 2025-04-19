@@ -109,6 +109,8 @@ function App() {
   const [upgradeCount, setUpgradeCount] = useState(0);
   const [streak, setStreak] = useState(0);
   const [highestStreak, setHighestStreak] = useState(0);
+  const [lossStreak, setLossStreak] = useState(0);
+  const [highestLossStreak, setHighestLossStreak] = useState(0);
   const [totalRolls, setTotalRolls] = useState(0);
   const [totalWins, setTotalWins] = useState(0);
   const [hasWonFirstBet, setHasWonFirstBet] = useState(false); // Keep for now, simpler for quest/tutorial unlock
@@ -381,6 +383,7 @@ function App() {
       setHighestStreak(current => Math.max(current, newStreak));
       return newStreak;
     });
+    setLossStreak(0); // Reset loss streak on win
     setTotalWins(prev => prev + 1);
     setTotalWinnings(prev => prev + profit); // Add PROFIT to total winnings
 
@@ -416,6 +419,7 @@ function App() {
       setHighestStreak(current => Math.max(current, newStreak));
       return newStreak;
     });
+    setLossStreak(0); // Reset loss streak on win
     setTotalWins(prev => prev + 1);
     setTotalWinnings(prev => prev + profit); // Add PROFIT to total winnings
     updateQuestProgress('pass-line-master', 1);
@@ -442,6 +446,12 @@ function App() {
   const handleLoss = (betType: string, betAmount: number, messageSuffix: string = "") => {
     addResult(`Lost ${formatNumber(betAmount)} on ${betType.replace(/-/g, ' ')}${messageSuffix}`);
     setStreak(0);
+    setLossStreak(prev => {
+      const newLossStreak = prev + 1;
+      // Update highest loss streak if current loss streak is higher
+      setHighestLossStreak(current => Math.max(current, newLossStreak));
+      return newLossStreak;
+    });
     // Bankroll already reduced when bet was placed
     // Remove the losing bet from active bets
     setActiveBets(prev => {
@@ -655,6 +665,8 @@ function App() {
         totalWinnings,
         streak,
         highestStreak,
+        lossStreak,
+        highestLossStreak,
         unlockedBets,
         unlockedChips,
         achievements: achievements.map(a => ({ id: a.id, unlocked: a.unlocked })),
@@ -772,6 +784,8 @@ function App() {
         if (savedState.totalWinnings !== undefined) setTotalWinnings(savedState.totalWinnings);
         if (savedState.streak !== undefined) setStreak(savedState.streak);
         if (savedState.highestStreak !== undefined) setHighestStreak(savedState.highestStreak);
+        if (savedState.lossStreak !== undefined) setLossStreak(savedState.lossStreak);
+        if (savedState.highestLossStreak !== undefined) setHighestLossStreak(savedState.highestLossStreak);
         if (savedState.upgradeCount !== undefined) setUpgradeCount(savedState.upgradeCount);
         if (savedState.hasWonFirstBet !== undefined) setHasWonFirstBet(savedState.hasWonFirstBet);
         if (savedState.completedTutorial !== undefined) setCompletedTutorial(savedState.completedTutorial);
@@ -898,6 +912,7 @@ function App() {
               setBankroll(prev => prev + activeBets[dontComeBetKey] + profit);
               setStreak(prev => prev + 1);
               setTotalWins(prev => prev + 1);
+              setLossStreak(0); // Reset loss streak on win
               setTotalWinnings(prev => prev + profit);
               updateQuestProgress('dont-come-bet-master', 1);
               betsToRemove.push(dontComeBetKey);
@@ -1071,6 +1086,7 @@ function App() {
             setBankroll(prev => prev + activeBets[comeBetKey] + profit);
             setStreak(prev => prev + 1);
             setTotalWins(prev => prev + 1);
+            setLossStreak(0); // Reset loss streak on win
             setTotalWinnings(prev => prev + profit);
             updateQuestProgress('come-bet-master', 1);
             betsToRemove.push(comeBetKey);
@@ -1131,6 +1147,7 @@ function App() {
             setBankroll(prev => prev + activeBets[dontComeBetKey] + profit);
             setStreak(prev => prev + 1);
             setTotalWins(prev => prev + 1);
+            setLossStreak(0); // Reset loss streak on win
             setTotalWinnings(prev => prev + profit);
             updateQuestProgress('dont-come-bet-master', 1);
             betsToRemove.push(dontComeBetKey);
@@ -1252,6 +1269,7 @@ function App() {
         setBankroll(prev => prev + betAmount + profit); // Return bet + profit
         setStreak(prev => prev + 1);
         setTotalWins(prev => prev + 1);
+        setLossStreak(0); // Reset loss streak on win
         setTotalWinnings(prev => prev + profit);
         updateQuestProgress('field-bet-master', 1);
         // First win check (could be refactored into handleStandardWin later)
@@ -1260,6 +1278,12 @@ function App() {
         // Field loses on 5, 6, 7, 8
         addResult(`Lost $${betAmount.toFixed(2)} on Field`);
         setStreak(0);
+        setLossStreak(prev => {
+          const newLossStreak = prev + 1;
+          // Update highest loss streak if current loss streak is higher
+          setHighestLossStreak(current => Math.max(current, newLossStreak));
+          return newLossStreak;
+        });
         // Bankroll already reduced
       }
       betsToRemove.push('field'); // Field is always a one-roll bet
@@ -1419,6 +1443,8 @@ function App() {
     setCurrentQuestTutorial(null);
     setStreak(0);
     setHighestStreak(0);
+    setLossStreak(0);
+    setHighestLossStreak(0);
     setTotalRolls(0);
     setTotalWins(0);
     setHasWonFirstBet(false);
@@ -1735,6 +1761,8 @@ function App() {
                <div className="stat-item"><div className="stat-label">Win Percentage:</div><div className="stat-value">{totalRolls > 0 ? ((totalWins / totalRolls) * 100).toFixed(1) : 0}%</div></div>
                <div className="stat-item"><div className="stat-label">Current Win Streak:</div><div className="stat-value">{streak}</div></div>
                <div className="stat-item"><div className="stat-label">Highest Win Streak:</div><div className="stat-value">{highestStreak}</div></div>
+               <div className="stat-item"><div className="stat-label">Current Loss Streak:</div><div className="stat-value">{lossStreak}</div></div>
+               <div className="stat-item"><div className="stat-label">Highest Loss Streak:</div><div className="stat-value">{highestLossStreak}</div></div>
                <div className="stat-item"><div className="stat-label">Passive Income Rate:</div><div className="stat-value">{formatNumber(passiveIncome)}/{TickSpeed/1000}s</div><div className="stat-note">(~1% of Global Winnings)</div></div>
              </div>
              <div className="stats-footer"><button className="exit-button" onClick={() => setShowStatsOverlay(false)}>Close</button></div>
