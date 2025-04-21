@@ -33,8 +33,11 @@ export const BET_UNLOCK_COSTS = {
   'any-craps': 90,
   'eleven': 100,
   'ace-deuce': 110,
-  // Special bets
-  'pass-line-odds': 150
+  // Odds bets
+  'pass-line-odds': 150,
+  'dont-pass-odds': 150,
+  'come-odds': 150,
+  'dont-come-odds': 150
 };
 
 // Chip unlock costs
@@ -51,7 +54,7 @@ export const CHIP_UNLOCK_COSTS = {
   '1000000000': 5000000000
 };
 
-type UpgradeTab = 'place' | 'chips' | 'other' | 'advanced';
+type UpgradeTab = 'place' | 'chips' | 'hardways' | 'odds';
 
 const Upgrades: React.FC<UpgradesProps> = ({ 
   unlockedBets, 
@@ -83,6 +86,18 @@ const Upgrades: React.FC<UpgradesProps> = ({
           onClick={() => setActiveTab('chips')}
         >
           Chips
+        </button>
+        <button
+          className={`upgrade-tab ${activeTab === 'hardways' ? 'active' : ''}`}
+          onClick={() => setActiveTab('hardways')}
+        >
+          Hardways
+        </button>
+        <button
+          className={`upgrade-tab ${activeTab === 'odds' ? 'active' : ''}`}
+          onClick={() => setActiveTab('odds')}
+        >
+          Odds
         </button>
       </div>
       
@@ -144,6 +159,66 @@ const Upgrades: React.FC<UpgradesProps> = ({
                 </div>
               );
             })}
+          </>
+        )}
+        
+        {activeTab === 'hardways' && (
+          <>
+            <div className="section-header">Hardways Bets</div>
+            {Object.entries(BET_UNLOCK_COSTS)
+              .filter(([betType]) => betType.startsWith('hard-'))
+              .map(([betType, cost]) => (
+                <div
+                  key={betType}
+                  className={`upgrade-item ${unlockedBets[betType] ? 'unlocked' : ''}`}
+                  onClick={() => !unlockedBets[betType] && unlockBet(betType)}
+                >
+                  <div className="upgrade-icon">
+                    {unlockedBets[betType] ? <FaUnlock /> : <FaLock />}
+                  </div>
+                  <div className="upgrade-details">
+                    <div className="upgrade-name">
+                      {betType.replace('hard-', 'Hard ')}
+                    </div>
+                    {unlockedBets[betType] ? (
+                      <div className="upgrade-status">Unlocked</div>
+                    ) : (
+                      <div className="upgrade-cost">{formatNumber(cost)}</div>
+                    )}
+                  </div>
+                </div>
+              ))
+            }
+          </>
+        )}
+        
+        {activeTab === 'odds' && (
+          <>
+            <div className="section-header">Odds Bets</div>
+            {Object.entries(BET_UNLOCK_COSTS)
+              .filter(([betType]) => betType.endsWith('-odds'))
+              .map(([betType, cost]) => (
+                <div
+                  key={betType}
+                  className={`upgrade-item ${unlockedBets[betType] ? 'unlocked' : ''}`}
+                  onClick={() => !unlockedBets[betType] && unlockBet(betType)}
+                >
+                  <div className="upgrade-icon">
+                    {unlockedBets[betType] ? <FaUnlock /> : <FaLock />}
+                  </div>
+                  <div className="upgrade-details">
+                    <div className="upgrade-name">
+                      {betType.replace('-odds', ' Odds').replace(/-/g, ' ')}
+                    </div>
+                    {unlockedBets[betType] ? (
+                      <div className="upgrade-status">Unlocked</div>
+                    ) : (
+                      <div className="upgrade-cost">{formatNumber(cost)}</div>
+                    )}
+                  </div>
+                </div>
+              ))
+            }
           </>
         )}
       </div>

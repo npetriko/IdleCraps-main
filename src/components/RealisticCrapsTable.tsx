@@ -131,8 +131,63 @@ const RealisticCrapsTable = ({
       )}
       
       <div className="table-layout">
+        {/* Hardways section */}
+        <div className="hardways-section">
+          <div className="hardways-title">HARDWAYS</div>
+          <div className="hardways-bets">
+            <div
+              className={`hardway-bet ${isLocked('hard-4') ? 'locked-bet' : ''}`}
+              onClick={() => onBet('hard-4')}
+              onContextMenu={(e) => handleRightClick(e, 'hard-4')}
+              onMouseEnter={() => setHoveredArea('hard-4')}
+              onMouseLeave={() => setHoveredArea(null)}
+            >
+              <div className="hardway-text">HARD 4</div>
+              <div className="dice-display">{DICE_FACES[2]}{DICE_FACES[2]}</div>
+              {getBetAmount('hard-4') > 0 && <div className="bet-amount">{formatNumber(getBetAmount('hard-4'))}</div>}
+              {renderLockIcon('hard-4')}
+            </div>
+            <div
+              className={`hardway-bet ${isLocked('hard-6') ? 'locked-bet' : ''}`}
+              onClick={() => onBet('hard-6')}
+              onContextMenu={(e) => handleRightClick(e, 'hard-6')}
+              onMouseEnter={() => setHoveredArea('hard-6')}
+              onMouseLeave={() => setHoveredArea(null)}
+            >
+              <div className="hardway-text">HARD 6</div>
+              <div className="dice-display">{DICE_FACES[3]}{DICE_FACES[3]}</div>
+              {getBetAmount('hard-6') > 0 && <div className="bet-amount">{formatNumber(getBetAmount('hard-6'))}</div>}
+              {renderLockIcon('hard-6')}
+            </div>
+            <div
+              className={`hardway-bet ${isLocked('hard-8') ? 'locked-bet' : ''}`}
+              onClick={() => onBet('hard-8')}
+              onContextMenu={(e) => handleRightClick(e, 'hard-8')}
+              onMouseEnter={() => setHoveredArea('hard-8')}
+              onMouseLeave={() => setHoveredArea(null)}
+            >
+              <div className="hardway-text">HARD 8</div>
+              <div className="dice-display">{DICE_FACES[4]}{DICE_FACES[4]}</div>
+              {getBetAmount('hard-8') > 0 && <div className="bet-amount">{formatNumber(getBetAmount('hard-8'))}</div>}
+              {renderLockIcon('hard-8')}
+            </div>
+            <div
+              className={`hardway-bet ${isLocked('hard-10') ? 'locked-bet' : ''}`}
+              onClick={() => onBet('hard-10')}
+              onContextMenu={(e) => handleRightClick(e, 'hard-10')}
+              onMouseEnter={() => setHoveredArea('hard-10')}
+              onMouseLeave={() => setHoveredArea(null)}
+            >
+              <div className="hardway-text">HARD 10</div>
+              <div className="dice-display">{DICE_FACES[5]}{DICE_FACES[5]}</div>
+              {getBetAmount('hard-10') > 0 && <div className="bet-amount">{formatNumber(getBetAmount('hard-10'))}</div>}
+              {renderLockIcon('hard-10')}
+            </div>
+          </div>
+        </div>
+        
         {/* Don't Come section */}
-        <div 
+        <div
           className={`section dont-come-section ${isLocked('dont-come') ? 'locked-bet' : ''}`}
           onClick={() => onBet('dont-come')}
           onContextMenu={(e) => handleRightClick(e, 'dont-come')}
@@ -158,8 +213,50 @@ const RealisticCrapsTable = ({
             <span>4</span>
             {point === 4 && <div className="on-puck"></div>}
             {getBetAmount('place-4') > 0 && <div className="place-bet-amount">{formatNumber(getBetAmount('place-4'))}</div>}
-            {hasComeBetOn(4) && <div className="come-bet-indicator">{formatNumber(getComeBetAmount(4), false)}</div>}
-            {hasDontComeBetOn(4) && <div className="dont-come-bet-indicator">{formatNumber(getDontComeBetAmount(4), false)}</div>}
+            {hasComeBetOn(4) && (
+              <div className="come-bet-container">
+                <div className="come-bet-indicator">{formatNumber(getComeBetAmount(4), false)}</div>
+                {!isLocked('come-odds-4') && (
+                  <div
+                    className="come-odds-button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onBet('come-odds-4');
+                    }}
+                    onContextMenu={(e) => {
+                      e.stopPropagation();
+                      e.preventDefault();
+                      handleRightClick(e, 'come-odds-4');
+                    }}
+                  >
+                    <div className="odds-label">ODDS</div>
+                    {getBetAmount('come-odds-4') > 0 && <div className="odds-amount">{formatNumber(getBetAmount('come-odds-4'), false)}</div>}
+                  </div>
+                )}
+              </div>
+            )}
+            {hasDontComeBetOn(4) && (
+              <div className="dont-come-bet-container">
+                <div className="dont-come-bet-indicator">{formatNumber(getDontComeBetAmount(4), false)}</div>
+                {!isLocked('dont-come-odds-4') && (
+                  <div
+                    className="dont-come-odds-button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onBet('dont-come-odds-4');
+                    }}
+                    onContextMenu={(e) => {
+                      e.stopPropagation();
+                      e.preventDefault();
+                      handleRightClick(e, 'dont-come-odds-4');
+                    }}
+                  >
+                    <div className="odds-label">ODDS</div>
+                    {getBetAmount('dont-come-odds-4') > 0 && <div className="odds-amount">{formatNumber(getBetAmount('dont-come-odds-4'), false)}</div>}
+                  </div>
+                )}
+              </div>
+            )}
             {renderLockIcon('place-4')}
           </div>
           
@@ -174,8 +271,50 @@ const RealisticCrapsTable = ({
             <span>5</span>
             {point === 5 && <div className="on-puck"></div>}
             {getBetAmount('place-5') > 0 && <div className="place-bet-amount">{formatNumber(getBetAmount('place-5'))}</div>}
-            {hasComeBetOn(5) && <div className="come-bet-indicator">{formatNumber(getComeBetAmount(5), false)}</div>}
-            {hasDontComeBetOn(5) && <div className="dont-come-bet-indicator">{formatNumber(getDontComeBetAmount(5), false)}</div>}
+            {hasComeBetOn(5) && (
+              <div className="come-bet-container">
+                <div className="come-bet-indicator">{formatNumber(getComeBetAmount(5), false)}</div>
+                {!isLocked('come-odds-5') && (
+                  <div
+                    className="come-odds-button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onBet('come-odds-5');
+                    }}
+                    onContextMenu={(e) => {
+                      e.stopPropagation();
+                      e.preventDefault();
+                      handleRightClick(e, 'come-odds-5');
+                    }}
+                  >
+                    <div className="odds-label">ODDS</div>
+                    {getBetAmount('come-odds-5') > 0 && <div className="odds-amount">{formatNumber(getBetAmount('come-odds-5'), false)}</div>}
+                  </div>
+                )}
+              </div>
+            )}
+            {hasDontComeBetOn(5) && (
+              <div className="dont-come-bet-container">
+                <div className="dont-come-bet-indicator">{formatNumber(getDontComeBetAmount(5), false)}</div>
+                {!isLocked('dont-come-odds-5') && (
+                  <div
+                    className="dont-come-odds-button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onBet('dont-come-odds-5');
+                    }}
+                    onContextMenu={(e) => {
+                      e.stopPropagation();
+                      e.preventDefault();
+                      handleRightClick(e, 'dont-come-odds-5');
+                    }}
+                  >
+                    <div className="odds-label">ODDS</div>
+                    {getBetAmount('dont-come-odds-5') > 0 && <div className="odds-amount">{formatNumber(getBetAmount('dont-come-odds-5'), false)}</div>}
+                  </div>
+                )}
+              </div>
+            )}
             {renderLockIcon('place-5')}
           </div>
           
@@ -190,8 +329,50 @@ const RealisticCrapsTable = ({
             <span style={{ transform: 'rotate(-20deg)' }}>SIX</span>
             {point === 6 && <div className="on-puck"></div>}
             {getBetAmount('place-6') > 0 && <div className="place-bet-amount">{formatNumber(getBetAmount('place-6'))}</div>}
-            {hasComeBetOn(6) && <div className="come-bet-indicator">{formatNumber(getComeBetAmount(6), false)}</div>}
-            {hasDontComeBetOn(6) && <div className="dont-come-bet-indicator">{formatNumber(getDontComeBetAmount(6), false)}</div>}
+            {hasComeBetOn(6) && (
+              <div className="come-bet-container">
+                <div className="come-bet-indicator">{formatNumber(getComeBetAmount(6), false)}</div>
+                {!isLocked('come-odds-6') && (
+                  <div
+                    className="come-odds-button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onBet('come-odds-6');
+                    }}
+                    onContextMenu={(e) => {
+                      e.stopPropagation();
+                      e.preventDefault();
+                      handleRightClick(e, 'come-odds-6');
+                    }}
+                  >
+                    <div className="odds-label">ODDS</div>
+                    {getBetAmount('come-odds-6') > 0 && <div className="odds-amount">{formatNumber(getBetAmount('come-odds-6'), false)}</div>}
+                  </div>
+                )}
+              </div>
+            )}
+            {hasDontComeBetOn(6) && (
+              <div className="dont-come-bet-container">
+                <div className="dont-come-bet-indicator">{formatNumber(getDontComeBetAmount(6), false)}</div>
+                {!isLocked('dont-come-odds-6') && (
+                  <div
+                    className="dont-come-odds-button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onBet('dont-come-odds-6');
+                    }}
+                    onContextMenu={(e) => {
+                      e.stopPropagation();
+                      e.preventDefault();
+                      handleRightClick(e, 'dont-come-odds-6');
+                    }}
+                  >
+                    <div className="odds-label">ODDS</div>
+                    {getBetAmount('dont-come-odds-6') > 0 && <div className="odds-amount">{formatNumber(getBetAmount('dont-come-odds-6'), false)}</div>}
+                  </div>
+                )}
+              </div>
+            )}
             {renderLockIcon('place-6')}
           </div>
           
@@ -206,8 +387,50 @@ const RealisticCrapsTable = ({
             <span>8</span>
             {point === 8 && <div className="on-puck"></div>}
             {getBetAmount('place-8') > 0 && <div className="place-bet-amount">{formatNumber(getBetAmount('place-8'))}</div>}
-            {hasComeBetOn(8) && <div className="come-bet-indicator">{formatNumber(getComeBetAmount(8), false)}</div>}
-            {hasDontComeBetOn(8) && <div className="dont-come-bet-indicator">{formatNumber(getDontComeBetAmount(8), false)}</div>}
+            {hasComeBetOn(8) && (
+              <div className="come-bet-container">
+                <div className="come-bet-indicator">{formatNumber(getComeBetAmount(8), false)}</div>
+                {!isLocked('come-odds-8') && (
+                  <div
+                    className="come-odds-button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onBet('come-odds-8');
+                    }}
+                    onContextMenu={(e) => {
+                      e.stopPropagation();
+                      e.preventDefault();
+                      handleRightClick(e, 'come-odds-8');
+                    }}
+                  >
+                    <div className="odds-label">ODDS</div>
+                    {getBetAmount('come-odds-8') > 0 && <div className="odds-amount">{formatNumber(getBetAmount('come-odds-8'), false)}</div>}
+                  </div>
+                )}
+              </div>
+            )}
+            {hasDontComeBetOn(8) && (
+              <div className="dont-come-bet-container">
+                <div className="dont-come-bet-indicator">{formatNumber(getDontComeBetAmount(8), false)}</div>
+                {!isLocked('dont-come-odds-8') && (
+                  <div
+                    className="dont-come-odds-button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onBet('dont-come-odds-8');
+                    }}
+                    onContextMenu={(e) => {
+                      e.stopPropagation();
+                      e.preventDefault();
+                      handleRightClick(e, 'dont-come-odds-8');
+                    }}
+                  >
+                    <div className="odds-label">ODDS</div>
+                    {getBetAmount('dont-come-odds-8') > 0 && <div className="odds-amount">{formatNumber(getBetAmount('dont-come-odds-8'), false)}</div>}
+                  </div>
+                )}
+              </div>
+            )}
             {renderLockIcon('place-8')}
           </div>
           
@@ -222,8 +445,50 @@ const RealisticCrapsTable = ({
             <span style={{ transform: 'rotate(-20deg)' }}>NINE</span>
             {point === 9 && <div className="on-puck"></div>}
             {getBetAmount('place-9') > 0 && <div className="place-bet-amount">{formatNumber(getBetAmount('place-9'))}</div>}
-            {hasComeBetOn(9) && <div className="come-bet-indicator">{formatNumber(getComeBetAmount(9), false)}</div>}
-            {hasDontComeBetOn(9) && <div className="dont-come-bet-indicator">{formatNumber(getDontComeBetAmount(9), false)}</div>}
+            {hasComeBetOn(9) && (
+              <div className="come-bet-container">
+                <div className="come-bet-indicator">{formatNumber(getComeBetAmount(9), false)}</div>
+                {!isLocked('come-odds-9') && (
+                  <div
+                    className="come-odds-button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onBet('come-odds-9');
+                    }}
+                    onContextMenu={(e) => {
+                      e.stopPropagation();
+                      e.preventDefault();
+                      handleRightClick(e, 'come-odds-9');
+                    }}
+                  >
+                    <div className="odds-label">ODDS</div>
+                    {getBetAmount('come-odds-9') > 0 && <div className="odds-amount">{formatNumber(getBetAmount('come-odds-9'), false)}</div>}
+                  </div>
+                )}
+              </div>
+            )}
+            {hasDontComeBetOn(9) && (
+              <div className="dont-come-bet-container">
+                <div className="dont-come-bet-indicator">{formatNumber(getDontComeBetAmount(9), false)}</div>
+                {!isLocked('dont-come-odds-9') && (
+                  <div
+                    className="dont-come-odds-button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onBet('dont-come-odds-9');
+                    }}
+                    onContextMenu={(e) => {
+                      e.stopPropagation();
+                      e.preventDefault();
+                      handleRightClick(e, 'dont-come-odds-9');
+                    }}
+                  >
+                    <div className="odds-label">ODDS</div>
+                    {getBetAmount('dont-come-odds-9') > 0 && <div className="odds-amount">{formatNumber(getBetAmount('dont-come-odds-9'), false)}</div>}
+                  </div>
+                )}
+              </div>
+            )}
             {renderLockIcon('place-9')}
           </div>
           
@@ -238,8 +503,50 @@ const RealisticCrapsTable = ({
             <span>10</span>
             {point === 10 && <div className="on-puck"></div>}
             {getBetAmount('place-10') > 0 && <div className="place-bet-amount">{formatNumber(getBetAmount('place-10'))}</div>}
-            {hasComeBetOn(10) && <div className="come-bet-indicator">{formatNumber(getComeBetAmount(10), false)}</div>}
-            {hasDontComeBetOn(10) && <div className="dont-come-bet-indicator">{formatNumber(getDontComeBetAmount(10), false)}</div>}
+            {hasComeBetOn(10) && (
+              <div className="come-bet-container">
+                <div className="come-bet-indicator">{formatNumber(getComeBetAmount(10), false)}</div>
+                {!isLocked('come-odds-10') && (
+                  <div
+                    className="come-odds-button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onBet('come-odds-10');
+                    }}
+                    onContextMenu={(e) => {
+                      e.stopPropagation();
+                      e.preventDefault();
+                      handleRightClick(e, 'come-odds-10');
+                    }}
+                  >
+                    <div className="odds-label">ODDS</div>
+                    {getBetAmount('come-odds-10') > 0 && <div className="odds-amount">{formatNumber(getBetAmount('come-odds-10'), false)}</div>}
+                  </div>
+                )}
+              </div>
+            )}
+            {hasDontComeBetOn(10) && (
+              <div className="dont-come-bet-container">
+                <div className="dont-come-bet-indicator">{formatNumber(getDontComeBetAmount(10), false)}</div>
+                {!isLocked('dont-come-odds-10') && (
+                  <div
+                    className="dont-come-odds-button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onBet('dont-come-odds-10');
+                    }}
+                    onContextMenu={(e) => {
+                      e.stopPropagation();
+                      e.preventDefault();
+                      handleRightClick(e, 'dont-come-odds-10');
+                    }}
+                  >
+                    <div className="odds-label">ODDS</div>
+                    {getBetAmount('dont-come-odds-10') > 0 && <div className="odds-amount">{formatNumber(getBetAmount('dont-come-odds-10'), false)}</div>}
+                  </div>
+                )}
+              </div>
+            )}
             {renderLockIcon('place-10')}
           </div>
         </div>
@@ -307,8 +614,8 @@ const RealisticCrapsTable = ({
           
           {/* Only show Pass Line Odds bet option when there's a point, active pass line bet, and it's unlocked */}
           {point !== null && activeBets['pass-line'] && !isLocked('pass-line-odds') && (
-            <div 
-              className="pass-line-odds-container" 
+            <div
+              className="pass-line-odds-container"
               onClick={(e) => {
                 e.stopPropagation(); // Prevent triggering the parent pass-line bet
                 onBet('pass-line-odds');
@@ -323,14 +630,33 @@ const RealisticCrapsTable = ({
                 <div className="bet-label">ODDS</div>
                 <div className="bet-amount">{formatNumber(getBetAmount('pass-line-odds'), false)}</div>
                 <div className="payout-info">
-                  {point === 4 || point === 10 ? "2:1" : 
-                   point === 5 || point === 9 ? "3:2" : 
+                  {point === 4 || point === 10 ? "2:1" :
+                   point === 5 || point === 9 ? "3:2" :
                    point === 6 || point === 8 ? "6:5" : ""}
                 </div>
               </div>
             </div>
           )}
         </div>
+        
+        {/* Don't Pass Odds section */}
+        {point !== null && activeBets['dont-pass'] && !isLocked('dont-pass-odds') && (
+          <div
+            className="dont-pass-odds-container"
+            onClick={() => onBet('dont-pass-odds')}
+            onContextMenu={(e) => handleRightClick(e, 'dont-pass-odds')}
+          >
+            <div className="odds-bet">
+              <div className="bet-label">DON'T PASS ODDS</div>
+              <div className="bet-amount">{formatNumber(getBetAmount('dont-pass-odds'), false)}</div>
+              <div className="payout-info">
+                {point === 4 || point === 10 ? "1:2" :
+                 point === 5 || point === 9 ? "2:3" :
+                 point === 6 || point === 8 ? "5:6" : ""}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

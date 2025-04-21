@@ -198,6 +198,61 @@ const betTutorials: Record<string, TutorialContent> = {
       </>
     )
   },
+  'dont-pass-odds': {
+    title: "Don't Pass Odds Bet",
+    content: (
+      <>
+        <p>Congratulations on unlocking <strong>Don't Pass Odds</strong>!</p>
+        <p>Like Pass Line Odds, the Don't Pass Odds bet has <em>zero</em> house edge - it pays true odds!</p>
+        <p>This special bet can only be made after placing a Don't Pass bet and a point is established. It's an additional bet that "backs up" your original Don't Pass bet.</p>
+        <p>The payout depends on the point number:</p>
+        <ul>
+          <li>Points of 4 or 10 pay 1:2 (you risk more to win less)</li>
+          <li>Points of 5 or 9 pay 2:3 (you risk more to win less)</li>
+          <li>Points of 6 or 8 pay 5:6 (you risk more to win less)</li>
+        </ul>
+        <p>With Don't Pass Odds, you're betting that a 7 will appear before the point, so you have to risk more to win less (the opposite of Pass Line Odds).</p>
+        <p>Despite the reversed odds, this is still one of the best bets in the casino with zero house edge!</p>
+      </>
+    )
+  },
+  'come-odds': {
+    title: "Come Odds Bet",
+    content: (
+      <>
+        <p>Congratulations on unlocking <strong>Come Odds</strong>!</p>
+        <p>Come Odds work exactly like Pass Line Odds, but they apply to Come bets instead.</p>
+        <p>After you place a Come bet and a Come point is established, you can place Come Odds behind your Come bet.</p>
+        <p>Like all Odds bets, Come Odds have <em>zero</em> house edge - they pay true odds!</p>
+        <p>The payout depends on the Come point number:</p>
+        <ul>
+          <li>Come points of 4 or 10 pay 2:1</li>
+          <li>Come points of 5 or 9 pay 3:2</li>
+          <li>Come points of 6 or 8 pay 6:5</li>
+        </ul>
+        <p>The advantage of Come Odds is that you can have multiple Come bets with Odds working at the same time, giving you several ways to win with the best odds in the casino!</p>
+      </>
+    )
+  },
+  'dont-come-odds': {
+    title: "Don't Come Odds Bet",
+    content: (
+      <>
+        <p>Congratulations on unlocking <strong>Don't Come Odds</strong>!</p>
+        <p>Don't Come Odds work exactly like Don't Pass Odds, but they apply to Don't Come bets instead.</p>
+        <p>After you place a Don't Come bet and a Don't Come point is established, you can place Don't Come Odds behind your Don't Come bet.</p>
+        <p>Like all Odds bets, Don't Come Odds have <em>zero</em> house edge - they pay true odds!</p>
+        <p>The payout depends on the Don't Come point number:</p>
+        <ul>
+          <li>Don't Come points of 4 or 10 pay 1:2 (you risk more to win less)</li>
+          <li>Don't Come points of 5 or 9 pay 2:3 (you risk more to win less)</li>
+          <li>Don't Come points of 6 or 8 pay 5:6 (you risk more to win less)</li>
+        </ul>
+        <p>With Don't Come Odds, you're betting that a 7 will appear before the Don't Come point, so you have to risk more to win less.</p>
+        <p>The advantage is that you can have multiple Don't Come bets with Odds working at the same time, all with zero house edge!</p>
+      </>
+    )
+  },
   'come': {
     title: "Come Bet",
     content: (

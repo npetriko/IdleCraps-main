@@ -80,8 +80,9 @@ const Leaderboard: React.FC = () => {
   
   // Get sorted entries
   const sortedEntries = [...entries].sort((a, b) => {
-    const fieldA = a[sortField];
-    const fieldB = b[sortField];
+    // Convert to numbers to ensure proper numeric comparison
+    const fieldA = Number(a[sortField]);
+    const fieldB = Number(b[sortField]);
     
     if (sortDirection === 'asc') {
       return fieldA > fieldB ? 1 : -1;

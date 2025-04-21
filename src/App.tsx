@@ -14,6 +14,8 @@ import ReactConfetti from 'react-confetti'; // Import confetti
 import useWindowSize from 'react-use/lib/useWindowSize'; // Import hook for window size
 import Leaderboard, { GAME_SAVED_EVENT } from './components/Leaderboard'; // Import Leaderboard component and event
 import { formatNumber } from './utils/formatNumber'; // Import number formatting utility
+import CrapsTips from './components/CrapsTips'; // Import the tips component
+import './CrapsTips.css'; // Import tips styling
 
 // Dice face characters
 const DICE_FACES: { [key: number]: string } = {
@@ -209,9 +211,31 @@ function App() {
       goal: 3,
       progress: 0,
       completed: false,
-      reward: 'Master of Craps',
+      reward: 'Unlock Hardways Bets',
       unlocked: false, // Unlocked after completing Don't Come Bet Master
       unlockTutorial: 'dont-pass-bet-master'
+    },
+    {
+      id: 'hardways-master',
+      name: 'Hardways Master',
+      description: 'Win a bet on each Hardway (Hard 4, 6, 8, 10)',
+      goal: 4,
+      progress: 0,
+      completed: false,
+      reward: 'Unlock Pass Line Odds',
+      unlocked: false, // Unlocked after completing Don't Pass Bet Master
+      unlockTutorial: 'hardways-unlocked'
+    },
+    {
+      id: 'odds-master',
+      name: 'Odds Master',
+      description: 'Win 3 Odds bets (any type)',
+      goal: 3,
+      progress: 0,
+      completed: false,
+      reward: 'Master of Craps',
+      unlocked: false, // Unlocked after completing Hardways Master
+      unlockTutorial: 'odds-unlocked'
     }
   ]);
 
@@ -350,7 +374,7 @@ function App() {
     const canRemoveBet = (betType: string) => {
       if (betType === 'pass-line') return point === null;
       if (betType.startsWith('place-')) return true;
-      if (betType === 'field') return false;
+      if (betType === 'field') return true; // Allow field bet removal at any time
       return true; // Default allow
     };
     if (canRemoveBet(betType)) {
@@ -603,11 +627,49 @@ function App() {
             }
             break;
           case 'dont-pass-bet-master':
-            // This is the final quest in the progression
-            rewardMsg = "You've mastered all betting strategies in craps!";
+            // Unlock Hardways bets and the next quest
+            setUnlockedBets(prev => ({
+              ...prev,
+              'hard-4': true,
+              'hard-6': true,
+              'hard-8': true,
+              'hard-10': true
+            }));
+            setQuests(prevQ => prevQ.map(q => q.id === 'hardways-master' ? { ...q, unlocked: true } : q));
+            rewardMsg = "Hardways bets unlocked!";
             if (!unlockedTutorials.includes('dont-pass-bet-master')) {
               setUnlockedTutorials(prev => [...prev, 'dont-pass-bet-master']);
               setCurrentQuestTutorial('dont-pass-bet-master'); setShowQuestTutorial(true);
+            }
+            if (!unlockedTutorials.includes('hardways-unlocked')) {
+              setUnlockedTutorials(prev => [...prev, 'hardways-unlocked']);
+            }
+            break;
+          case 'hardways-master':
+            // Unlock Pass Line Odds and the next quest
+            setUnlockedBets(prev => ({
+              ...prev,
+              'pass-line-odds': true,
+              'dont-pass-odds': true,
+              'come-odds': true,
+              'dont-come-odds': true
+            }));
+            setQuests(prevQ => prevQ.map(q => q.id === 'odds-master' ? { ...q, unlocked: true } : q));
+            rewardMsg = "All Odds bets unlocked!";
+            if (!unlockedTutorials.includes('hardways-master')) {
+              setUnlockedTutorials(prev => [...prev, 'hardways-master']);
+              setCurrentQuestTutorial('hardways-master'); setShowQuestTutorial(true);
+            }
+            if (!unlockedTutorials.includes('odds-unlocked')) {
+              setUnlockedTutorials(prev => [...prev, 'odds-unlocked']);
+            }
+            break;
+          case 'odds-master':
+            // This is the final quest in the progression
+            rewardMsg = "You've mastered all betting strategies in craps!";
+            if (!unlockedTutorials.includes('odds-master')) {
+              setUnlockedTutorials(prev => [...prev, 'odds-master']);
+              setCurrentQuestTutorial('odds-master'); setShowQuestTutorial(true);
             }
             break;
         }
@@ -1096,6 +1158,26 @@ function App() {
             betsToRemove.push(comeBetKey);
             delete nextComePoints[comeBetKey];
             
+            // Handle Come Odds if present
+            const comeOddsKey = `come-odds-${comePoint}`;
+            if (activeBets[comeOddsKey]) {
+              const oddsAmount = activeBets[comeOddsKey];
+              let oddsPayout = 0;
+              
+              // Calculate payout based on point
+              if (comePoint === 4 || comePoint === 10) {
+                oddsPayout = oddsAmount * 2; // 2:1
+              } else if (comePoint === 5 || comePoint === 9) {
+                oddsPayout = oddsAmount * 1.5; // 3:2
+              } else if (comePoint === 6 || comePoint === 8) {
+                oddsPayout = oddsAmount * 1.2; // 6:5
+              }
+              
+              handleStandardWin(comeOddsKey, oddsAmount, oddsPayout);
+              updateQuestProgress('odds-master', 1);
+              betsToRemove.push(comeOddsKey); // Odds bets are removed after win
+            }
+            
             // If there's a fresh Come bet, we'll need to move it to this point
             if (activeBets['come']) {
               moveFreshComeBet = true;
@@ -1108,6 +1190,12 @@ function App() {
           if (activeBets[comeBetKey]) {
             handleLoss(comeBetKey, activeBets[comeBetKey], ` on ${comePoint}`);
             delete nextComePoints[comeBetKey];
+            
+            // Remove Come Odds if present
+            const comeOddsKey = `come-odds-${comePoint}`;
+            if (activeBets[comeOddsKey]) {
+              betsToRemove.push(comeOddsKey);
+            }
           }
         } else {
           // Come point bet stays if neither its number nor 7 is rolled
@@ -1136,6 +1224,12 @@ function App() {
             handleLoss(dontComeBetKey, activeBets[dontComeBetKey], ` on ${dontComePoint}`);
             delete nextDontComePoints[dontComeBetKey];
             
+            // Remove Don't Come Odds if present
+            const dontComeOddsKey = `dont-come-odds-${dontComePoint}`;
+            if (activeBets[dontComeOddsKey]) {
+              betsToRemove.push(dontComeOddsKey);
+            }
+            
             // If there's a fresh Don't Come bet, we'll need to move it to this point
             if (activeBets['dont-come']) {
               moveFreshDontComeBet = true;
@@ -1156,6 +1250,26 @@ function App() {
             updateQuestProgress('dont-come-bet-master', 1);
             betsToRemove.push(dontComeBetKey);
             delete nextDontComePoints[dontComeBetKey];
+            
+            // Handle Don't Come Odds if present
+            const dontComeOddsKey = `dont-come-odds-${dontComePoint}`;
+            if (activeBets[dontComeOddsKey]) {
+              const oddsAmount = activeBets[dontComeOddsKey];
+              let oddsPayout = 0;
+              
+              // Calculate payout based on point
+              if (dontComePoint === 4 || dontComePoint === 10) {
+                oddsPayout = oddsAmount * 0.5; // 1:2
+              } else if (dontComePoint === 5 || dontComePoint === 9) {
+                oddsPayout = oddsAmount * 0.66; // 2:3
+              } else if (dontComePoint === 6 || dontComePoint === 8) {
+                oddsPayout = oddsAmount * 0.83; // 5:6
+              }
+              
+              handleStandardWin(dontComeOddsKey, oddsAmount, oddsPayout);
+              updateQuestProgress('odds-master', 1);
+              betsToRemove.push(dontComeOddsKey); // Odds bets are removed after win
+            }
           }
         } else {
           // Don't Come point bet stays if neither its number nor 7 is rolled
@@ -1182,11 +1296,35 @@ function App() {
         if (activeBets['pass-line']) {
           handlePassLineWin(activeBets['pass-line'], `Made point ${point}! `);
           betsToKeep.push('pass-line'); // Bet STAYS after hitting point
+          
+          // Handle Pass Line Odds if present
+          if (activeBets['pass-line-odds']) {
+            const oddsAmount = activeBets['pass-line-odds'];
+            let oddsPayout = 0;
+            
+            // Calculate payout based on point
+            if (point === 4 || point === 10) {
+              oddsPayout = oddsAmount * 2; // 2:1
+            } else if (point === 5 || point === 9) {
+              oddsPayout = oddsAmount * 1.5; // 3:2
+            } else if (point === 6 || point === 8) {
+              oddsPayout = oddsAmount * 1.2; // 6:5
+            }
+            
+            handleStandardWin('pass-line-odds', oddsAmount, oddsPayout);
+            updateQuestProgress('odds-master', 1);
+            betsToRemove.push('pass-line-odds'); // Odds bets are removed after win
+          }
         }
         // Don't Pass loses
         if (activeBets['dont-pass']) {
           handleLoss('dont-pass', activeBets['dont-pass']);
           // betsToRemove handled by handleLoss
+          
+          // Remove Don't Pass Odds if present
+          if (activeBets['dont-pass-odds']) {
+            betsToRemove.push('dont-pass-odds');
+          }
         }
         // Place Bet on the point wins
         const placeBetType = `place-${point}`;
@@ -1212,18 +1350,49 @@ function App() {
         // Pass Line loses
         if (activeBets['pass-line']) {
           handleLoss('pass-line', activeBets['pass-line']);
+          
+          // Remove Pass Line Odds if present
+          if (activeBets['pass-line-odds']) {
+            betsToRemove.push('pass-line-odds');
+          }
         }
         // Don't Pass wins
         if (activeBets['dont-pass']) {
           // 1:1 payout
           handleDontPassBetWin(activeBets['dont-pass']);
           betsToRemove.push('dont-pass'); // Bet comes down
+          
+          // Handle Don't Pass Odds if present
+          if (activeBets['dont-pass-odds']) {
+            const oddsAmount = activeBets['dont-pass-odds'];
+            let oddsPayout = 0;
+            
+            // Calculate payout based on point
+            if (point === 4 || point === 10) {
+              oddsPayout = oddsAmount * 0.5; // 1:2
+            } else if (point === 5 || point === 9) {
+              oddsPayout = oddsAmount * 0.66; // 2:3
+            } else if (point === 6 || point === 8) {
+              oddsPayout = oddsAmount * 0.83; // 5:6
+            }
+            
+            handleStandardWin('dont-pass-odds', oddsAmount, oddsPayout);
+            updateQuestProgress('odds-master', 1);
+            betsToRemove.push('dont-pass-odds'); // Odds bets are removed after win
+          }
         }
         // All Place Bets lose
         Object.keys(activeBets)
           .filter(bet => bet.startsWith('place-'))
           .forEach(bet => {
             handleLoss(bet, activeBets[bet]);
+          });
+          
+        // All Hardways bets lose on a 7
+        Object.keys(activeBets)
+          .filter(bet => bet.startsWith('hard-'))
+          .forEach(bet => {
+            handleLoss(bet, activeBets[bet], ' (Seven out)');
           });
         
         // Come bet loses on a 7 during point phase
@@ -1255,10 +1424,53 @@ function App() {
            updateQuestProgress('place-bet-expert', 1, total); // Pass winning number
            betsToKeep.push(placeBetType); // Place bets stay ON
         }
-         // Keep other Place bets, Pass Line, Don't Pass
-         Object.keys(activeBets)
-           .filter(bet => bet !== placeBetType && (bet.startsWith('place-') || bet === 'pass-line' || bet === 'dont-pass'))
-           .forEach(bet => betsToKeep.push(bet));
+        
+        // Check for Hardways bets
+        if (dice[0] === dice[1]) { // If doubles are rolled
+          const hardwayTotal = total;
+          const hardwayBetType = `hard-${hardwayTotal}`;
+          
+          if (activeBets[hardwayBetType]) {
+            // Hardway bet wins
+            const betAmount = activeBets[hardwayBetType];
+            let payoutMultiplier = 0;
+            
+            // Set payout based on the hardway number
+            if (hardwayTotal === 4 || hardwayTotal === 10) {
+              payoutMultiplier = 7; // Hard 4 and Hard 10 pay 7:1
+            } else if (hardwayTotal === 6 || hardwayTotal === 8) {
+              payoutMultiplier = 9; // Hard 6 and Hard 8 pay 9:1
+            }
+            
+            const profit = betAmount * payoutMultiplier;
+            handleStandardWin(hardwayBetType, betAmount, profit);
+            updateQuestProgress('hardways-master', 1);
+            betsToRemove.push(hardwayBetType); // Hardways bets are removed after win
+          }
+        } else {
+          // Check if an "easy" version of a hardway was rolled
+          if (total === 4 && activeBets['hard-4']) {
+            handleLoss('hard-4', activeBets['hard-4'], ' (Easy 4)');
+          } else if (total === 6 && activeBets['hard-6']) {
+            handleLoss('hard-6', activeBets['hard-6'], ' (Easy 6)');
+          } else if (total === 8 && activeBets['hard-8']) {
+            handleLoss('hard-8', activeBets['hard-8'], ' (Easy 8)');
+          } else if (total === 10 && activeBets['hard-10']) {
+            handleLoss('hard-10', activeBets['hard-10'], ' (Easy 10)');
+          }
+        }
+        
+        // Keep other Place bets, Pass Line, Don't Pass
+        Object.keys(activeBets)
+          .filter(bet => bet !== placeBetType && (bet.startsWith('place-') || bet === 'pass-line' || bet === 'dont-pass'))
+          .forEach(bet => betsToKeep.push(bet));
+          
+        // Keep Hardways bets that didn't win or lose
+        Object.keys(activeBets)
+          .filter(bet => bet.startsWith('hard-') &&
+                 bet !== `hard-${total}` && // Not the hardway that was just rolled
+                 total !== 7) // 7 makes all hardways lose
+          .forEach(bet => betsToKeep.push(bet));
       }
     }
 
@@ -1693,6 +1905,10 @@ function App() {
         {/* Right Content (Table, Quests Panel) */}
         <div className="right-content">
           <RealisticCrapsTable point={point} lastRoll={dice} onBet={placeBet} onRemoveBet={removeBet} activeBets={activeBets} unlockedBets={unlockedBets} comePoints={comePoints} dontComePoints={dontComePoints} selectedChip={selectedChip} />
+          
+          {/* Rotating Tips Section */}
+          <CrapsTips />
+          
           {/* Render Quests Panel */}
           {showQuests && <Quests quests={quests.filter(quest => quest.unlocked || quest.completed)} onClose={() => setShowQuests(false)} />}
           {/* Render Upgrades Panel */}
@@ -1718,11 +1934,11 @@ function App() {
                       className={`chip value-${value} ${selectedChip === value ? 'selected' : ''}`}
                       onClick={() => setSelectedChip(value)}
                     >
-                      ${value}
+                      {formatNumber(value, false)}
                     </div>
                   ))}
                 </div>
-                <div className="selected-chip-info">Selected bet: ${selectedChip}</div>
+                <div className="selected-chip-info">Selected bet: {formatNumber(selectedChip)}</div>
               </div>
               <div className="results-panel">
               <div className="results-title clickable" onClick={() => setShowResultsHistory(true)}>Recent Results</div>

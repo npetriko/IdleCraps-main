@@ -173,8 +173,90 @@ const questTutorials: Record<string, TutorialContent> = {
     content: (
       <>
         <p>Congratulations on winning 3 Don't Pass bets!</p>
-        <p>You've mastered all the fundamental betting strategies in craps!</p>
-        <p>You now have a complete understanding of both "right way" and "wrong way" betting.</p>
+        <p>You've mastered the fundamental betting strategies in craps!</p>
+        <p>As a reward, you've unlocked <strong>Hardways bets</strong>!</p>
+        <p>Hardways bets are wagers that a specific number will be rolled as doubles before either a 7 or the "easy" version of that number appears.</p>
+        <p>Your next quest is to win a bet on each Hardway (Hard 4, 6, 8, and 10).</p>
+      </>
+    )
+  },
+  'hardways-unlocked': {
+    title: "Hardways Bets Unlocked!",
+    content: (
+      <>
+        <p>You've unlocked <strong>Hardways bets</strong>!</p>
+        <p>Hardways bets are exciting proposition bets that pay higher odds but are more difficult to win.</p>
+        <p>A "hard" way to make a number means rolling doubles:</p>
+        <ul>
+          <li><strong>Hard 4:</strong> Betting that 2+2 will be rolled before any 7 or "easy 4" (3+1)</li>
+          <li><strong>Hard 6:</strong> Betting that 3+3 will be rolled before any 7 or "easy 6" (5+1, 4+2)</li>
+          <li><strong>Hard 8:</strong> Betting that 4+4 will be rolled before any 7 or "easy 8" (6+2, 5+3)</li>
+          <li><strong>Hard 10:</strong> Betting that 5+5 will be rolled before any 7 or "easy 10" (6+4)</li>
+        </ul>
+        <p>Hardways bets pay higher odds:</p>
+        <ul>
+          <li>Hard 4 and Hard 10 pay 7:1</li>
+          <li>Hard 6 and Hard 8 pay 9:1</li>
+        </ul>
+        <p>Your next quest is to win a bet on each Hardway to unlock Odds bets!</p>
+      </>
+    )
+  },
+  'hardways-master': {
+    title: "Hardways Master!",
+    content: (
+      <>
+        <p>Congratulations on winning all four Hardways bets!</p>
+        <p>You've proven your skill with some of the most challenging bets in craps.</p>
+        <p>As a reward, you've unlocked <strong>Odds bets</strong> for Pass Line, Don't Pass, Come, and Don't Come!</p>
+        <p>Odds bets are the only bets in the casino with no house edge - they pay true odds!</p>
+        <p>Your next quest is to win 3 Odds bets to complete your mastery of craps.</p>
+      </>
+    )
+  },
+  'odds-unlocked': {
+    title: "Odds Bets Unlocked!",
+    content: (
+      <>
+        <p>You've unlocked <strong>Odds bets</strong>!</p>
+        <p>Odds bets are special bets that can only be made after placing a Pass Line, Don't Pass, Come, or Don't Come bet.</p>
+        <p>These bets have <em>zero</em> house edge - they pay true odds!</p>
+        <p>The payout depends on the point number:</p>
+        <ul>
+          <li><strong>Pass Line/Come Odds:</strong>
+            <ul>
+              <li>Points of 4 or 10 pay 2:1</li>
+              <li>Points of 5 or 9 pay 3:2</li>
+              <li>Points of 6 or 8 pay 6:5</li>
+            </ul>
+          </li>
+          <li><strong>Don't Pass/Don't Come Odds:</strong>
+            <ul>
+              <li>Points of 4 or 10 pay 1:2</li>
+              <li>Points of 5 or 9 pay 2:3</li>
+              <li>Points of 6 or 8 pay 5:6</li>
+            </ul>
+          </li>
+        </ul>
+        <p>Your next quest is to win 3 Odds bets to complete your mastery of craps!</p>
+      </>
+    )
+  },
+  'odds-master': {
+    title: "Odds Master!",
+    content: (
+      <>
+        <p>Congratulations on winning 3 Odds bets!</p>
+        <p>You've now mastered all the betting strategies in craps!</p>
+        <p>You have a complete understanding of both basic and advanced bets, including:</p>
+        <ul>
+          <li>Line bets (Pass Line, Don't Pass)</li>
+          <li>Place bets (4, 5, 6, 8, 9, 10)</li>
+          <li>Field bets</li>
+          <li>Come and Don't Come bets</li>
+          <li>Hardways bets</li>
+          <li>Odds bets</li>
+        </ul>
         <p>This knowledge allows you to adapt your strategy based on table conditions and your personal preferences.</p>
         <p>Continue building your bankroll and exploring different betting combinations!</p>
       </>
